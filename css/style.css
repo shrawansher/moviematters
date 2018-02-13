@@ -1,0 +1,92 @@
+html, body, .Container
+{
+    height: 100%;
+    font-family: 'Open Sans', sans-serif;
+}
+
+    .Container:before
+    {
+        content: '';
+        height: 100%;
+        float: left;
+    }
+
+.Header
+{
+    margin-bottom: 10px;
+    background-color: #d3d3d3;
+}
+.Content
+{
+    position: relative;
+    z-index: 1;
+}
+    .Content:after
+    {
+        content: '';
+        clear: both;
+        display: block;
+    }
+
+.Wrapper
+{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+    .Wrapper > div
+    {
+        height: 100%;
+    }
+
+.LeftContent
+{
+    background-color: #fafafa;
+    overflow: auto;
+}
+
+.RightContent
+{
+    background-color: #e4e4e4;
+    float: right;
+    margin-left: 10px;
+}
+
+
+.tooltip {
+	position: absolute;
+	width: 100px;
+	height: 50px;
+	pointer-events: none;	
+}
+
+.axis line,
+.axis text {
+  font: 11px sans-serif;
+}
+.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+
+#title, #summary, #filters, #infobar {
+        text-align: center;
+}
+
+#title {
+        height: 50px;
+    	font-size: 30px;
+}
+
+
+
+
+
+
+
+
+
+
+

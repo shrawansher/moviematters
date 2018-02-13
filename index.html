@@ -16,31 +16,58 @@
 <body>
     <div class="Container">
 
-        <div id="title-section" class="Header">
+        <div class="Header">
             <h1 id="title">Movie Matters</h1>
-            <p id="summary" >Take a look at 15 years of your movie watching experiences!</p>
+            <p id="title-summary" >Explore 15 years of a cinephile's movie watching history!</p>
         </div>
 
 
         <div class="Content">
             <div class="Wrapper">
                 
-                <div id ="filters" class="RightContent">
+                <div id ="filters-div" class="RightContent">
                     <p>Filters go here</p>
+                    <!--Filter Section For 'YEAR' Slider  -->
+
+
+                    <!--Filter Section For 'GENRE' DropDown  -->
+
+
+
+                    <!--Filter Section For 'MY RATING' Slider  -->
+
                 </div>
                 
-                <div id="visualization" class="LeftContent">
-                 <p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p>
-                 <p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p>
-                 <p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p>
-                 <p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p>
-                 <p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p>
-                 <p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p>
-                 <p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p><p>this will scroll</p>
-                </div>
-            </div>
-        </div>
-    </div>	
+                <div id="visualization-div" class="LeftContent">
+                 	<h3>Timeline View</h3>
+                 	<p class="view-summary">When were the movies you've watched released?</p>
+                 	<p class="helptext" > Select filters to play around</p>
+                	
+                	<div id="timeline-div" class="visualization">
+                		<svg id="time-bars" class="chart"></svg>
+					</div>
+
+                	<br/><br/>
+
+                 	<h3>Genre View</h3>
+                 	<p class="view-summary">Which movie genres do you watch or like?</p>
+                 	<p class="helptext" > Select filters to play around</p>
+                	<div id="genre-div" class="visualization">
+                		<svg id="genre-bars" class="chart"></svg>
+					</div>
+                	<br/><br/>
+
+                 	<h3>Your Ratings View</h3>
+                 	<p class="view-summary">How do you rate your movies?</p>
+                 	<p class="helptext" > Select filters to play around</p>
+                	<div id="ratings-div" class="visualization">
+                		<svg id="rating-years" class="chart"></svg>
+					</div>
+                </div> <!-- Visualization Div (Left Content) -->
+
+            </div> <!-- Wrapper (Left and Right Content)-->
+        </div> <!-- Content (Wrapper) -->
+    </div><!-- container (Header and Content)-->	
 
 
 </body>
