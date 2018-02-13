@@ -1,12 +1,7 @@
-*
-{
-    margin: 0;
-    padding: 0;
-}
-
 html, body, .Container
 {
     height: 100%;
+    font-family: 'Open Sans', sans-serif;
 }
 
     .Container:before
@@ -19,7 +14,7 @@ html, body, .Container
 .Header
 {
     margin-bottom: 10px;
-    background-color: #6ea364;
+    background-color: #d3d3d3;
 }
 .Content
 {
@@ -46,13 +41,46 @@ html, body, .Container
 
 .LeftContent
 {
-    background-color: purple;
+    background-color: #fafafa;
     overflow: auto;
 }
 
 .RightContent
 {
-    background-color: orange;
+    background-color: #e4e4e4;
     float: right;
     margin-left: 10px;
 }
+
+
+
+.axis line,
+.axis text {
+  font: 11px sans-serif;
+}
+.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+
+#title, #summary, #filters, #infobar {
+        text-align: center;
+}
+
+#title {
+        height: 50px;
+    	font-size: 30px;
+}
+
+
+
+
+
+
+
+
+
+
+
