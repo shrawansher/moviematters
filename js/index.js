@@ -495,7 +495,7 @@ function filterYear(yearRange){
 
     //console.log('Filter Year', yearRange);
     var filteredDataset = dataset.filter( function(d) { return d.year >= yearRange[0] && d.year < yearRange[1]} );
-    drawRatingYearVis(filteredDataset);
+    drawAllVis(filteredDataset);
 }//End Filter Volume
 
 
