@@ -134,58 +134,58 @@ var tooltip = d3.select("body").append("div")
 
 
 //SCALES for Ratings Div
-var x_year = d3.scaleLinear()
-        .domain([1930, 2017])
-        .range([0, w]);
+function createNumericScale(dataset, col, pixelRange){
+	//To create Linear Scales for Quantitative Columns 
+	//(E.g. year, imdb rating, my rating) 
 
-var y_myrating = d3.scaleLinear()
-        .domain([0, 10])
-        .range([h, 0]);
+	var colValue = function(d){return d[col];}
 
-var col_genre = d3.scaleOrdinal(d3.schemeCategory20);
+	var extent = d3.extent(dataset, colValue);
 
+  	var scale = d3.scaleLinear()
+    	.domain(extent)
+    	.range(pixelRange);
+    
+    return scale; //scale function
+}
 
-
-//OLD SCALES (Stocks)
-var col = d3.scaleOrdinal(d3.schemeCategory10);
-var colLightness = d3.scaleLinear()
-	.domain([0, 1200])
-	.range(["#FFFFFF", "#000000"])
-
-var x = d3.scaleLinear()
-        .domain([0, 1000])
-        .range([0, w]);
-
-var y = d3.scaleLinear()
-        .domain([0, 1000])
-        .range([h, 0]);
 
 
 //SVG and DOM tags for Ratings Div
-var ratingchart = d3.select("#rating-years") //select svg element by id
+function createSVGChartAndAxes(selectString, xScale, yScale, xLabel, yLabel)
+{
+	var chart = d3.select(selectString) //select svg element by id, class
     .attr("width", w + margin.left + margin.right)
     .attr("height", h + margin.top + margin.bottom+15)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-
-ratingchart.append("g")
+    chart.append("g")
+      .attr("class", "x-axis")
       .attr("transform", "translate(0," + h + ")")
-      .call(d3.axisBottom(x_year))
+      .call(d3.axisBottom(xScale))
      .append("text")
       .attr("x", w)
       .attr("y", -6)
       .style("text-anchor", "end")
-      .text("Price");
+      .text(xLabel);
 
-ratingchart.append("g")
-     .call(d3.axisLeft(y_myrating))
+	chart.append("g")
+	 .attr("class", "y-axis")
+     .call(d3.axisLeft(yScale))
       .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("True Value");
+      .text(yLabel);
+
+    return chart;
+}
+
+
+
+var ratingchart;
 
 /*
 		DRAW VISUALIZATIONS
@@ -205,19 +205,39 @@ function drawRatingYearVis(dataset) {
 
   	console.log('Drawing Scatter Plot: Rating vs Year')
 
-  	//draw the circles initially and on each interaction with a control
-	var circle = ratingchart.selectAll("circle")
-	   .data(dataset);
-
+  	//Set the Tooltip Text
   	var tooltipText = function(d) {
-  									return "<b>" + d.title + "</b> ("  + d.year + ") <br/> My Rating " 
+  									return "<strong>" + d.title + "</strong> ("  + d.year + ") <br/> My Rating " 
   									+ d.my_rating + "<br/> IMDB Rating: " + d.imdb_rating
   								};
 
+  	//Create Scales (Dynamically)
+  	x_col = "year"
+  	y_col = "my_rating"
+
+  	var rating_xScale = createNumericScale(dataset, x_col, [0,w]);
+	var rating_yScale = createNumericScale(dataset, y_col, [h,0]);
+
+	var x = function(d) {return rating_xScale(d[x_col]);} //accessor function
+	var y = function(d) {return rating_yScale(d[y_col]);} //accessor function
+
+	//Create SVG Chart And AXES if needed (Runs only during initial)
+	if (typeof ratingchart == 'undefined')
+	{	ratingchart = createSVGChartAndAxes("#rating-years", rating_xScale, rating_yScale, "Year", "My Rating");
+		console.log("Created Rating Chart: ", ratingchart);
+	}
+
+  	//draw the circles initially and on each interaction with a control
+	var circle = ratingchart.selectAll(".rating-circle")
+	   .data(dataset);
+
+
   	console.log('Update')
 	circle
-    	  .attr("cx", function(d) { return x_year(d.year);  })
-    	  .attr("cy", function(d) { return y_myrating(d.my_rating);  })
+    	  .attr("cx", x)
+    	  .attr("cy", y)
+    	  .attr("class", ".rating-circle")
+    	  .style("opacity", 0.2)
      	 // .style("fill", function(d) { return col(d.type); })
         .on("mouseover", function(d) {    
             tooltip.transition()    
@@ -238,12 +258,12 @@ function drawRatingYearVis(dataset) {
 
     console.log('Enter')
 	circle.enter().append("circle")
-    	  .attr("cx", function(d) { return x_year(d.year);  })
-    	  .attr("cy", function(d) { return y_myrating(d.my_rating);  })
+    	  .attr("cx", x)
+    	  .attr("cy", y)
     	  .attr("r", 4)
     	  .style("stroke", "black")
      	  //.style("fill", function(d) { return col(d.type); })
-    	  .style("opacity", 0.5)
+    	  .style("opacity", 0.2)
         .on("mouseover", function(d) {    
             tooltip.transition()    
                 .duration(200)    
