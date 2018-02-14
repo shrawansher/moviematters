@@ -19,7 +19,7 @@ html, body, .Container
 .Content
 {
     position: relative;
-    z-index: 1;
+    /*z-index: 1;*/
 }
     .Content:after
     {
@@ -54,13 +54,14 @@ html, body, .Container
 
 .tooltip {
 	position: absolute;
-	/*width: 200px; */
-	height: 50px;
+	height: auto;
+    width: auto;
 	pointer-events: none;
+    
     font-size: 10px;
-
     background-color: black;
     color: #fff;
+
     text-align: center;
     padding: 5px 5px;
     border-radius: 6px;
@@ -71,7 +72,11 @@ html, body, .Container
 .axis line,
 .axis text {
   font: 11px sans-serif;
+  shape-rendering: crispEdges;
+
 }
+
+
 .axis path {
   fill: none;
   stroke: #000;

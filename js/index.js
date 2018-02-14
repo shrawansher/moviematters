@@ -106,7 +106,7 @@ var my_rating = function (d) {return d['my_rating']};
 var imdb_rating = function (d) {return d['imdb_rating']};
 var runtime = function (d) {return d['runtime']};
 var revenue = function (d) {return d['revenue']};
-
+var key = function(d) {return d['film_id']};
 
 
 /*
@@ -133,6 +133,46 @@ var tooltip = d3.select("body").append("div")
 //SVG and DOM tags for Genre Div
 
 
+//SVG and DOM tags for Ratings Div
+function createSVGChart(selectString)
+{
+	var chart = d3.select(selectString) //select svg element by id, class
+    .attr("width", w + margin.left + margin.right)
+    .attr("height", h + margin.top + margin.bottom+15)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    return chart;
+}
+
+function createAxesDOM(chart, idLabel, xLabel, yLabel)
+{   
+    g1 = chart.append("g")
+      .attr("class", "x axis " + idLabel)  //Keep space between x axis and label
+      .attr("transform", "translate(0," + h + ")");
+
+    g2 =chart.append("g")
+	 .attr("class", "y axis " + idLabel);  //Keep space between x axis and label
+
+	//Label the axes
+	g1.append("text")
+	    .attr("x", w)
+	    .attr("y", -6)
+	    .style("text-anchor", "end")
+	    .style("z-index", "3")
+	    .text(xLabel);
+			
+		
+	g2.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .style("z-index", "3")
+      .text(yLabel);
+}
+
+
 //SCALES for Ratings Div
 function createNumericScale(dataset, col, pixelRange){
 	//To create Linear Scales for Quantitative Columns 
@@ -149,43 +189,13 @@ function createNumericScale(dataset, col, pixelRange){
     return scale; //scale function
 }
 
-
-
-//SVG and DOM tags for Ratings Div
-function createSVGChartAndAxes(selectString, xScale, yScale, xLabel, yLabel)
+function createD3Axes(chart, xScale, yScale, xTicks, yTicks)
 {
-	var chart = d3.select(selectString) //select svg element by id, class
-    .attr("width", w + margin.left + margin.right)
-    .attr("height", h + margin.top + margin.bottom+15)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    chart.append("g")
-      .attr("class", "x-axis")
-      .attr("transform", "translate(0," + h + ")")
-      .call(d3.axisBottom(xScale))
-     .append("text")
-      .attr("x", w)
-      .attr("y", -6)
-      .style("text-anchor", "end")
-      .text(xLabel);
-
-	chart.append("g")
-	 .attr("class", "y-axis")
-     .call(d3.axisLeft(yScale))
-      .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text(yLabel);
-
-    return chart;
+    var xAxis = d3.axisBottom().scale(xScale);
+    var yAxis = d3.axisLeft().scale(yScale);
+    return [xAxis,yAxis];
 }
 
-
-
-var ratingchart;
 
 /*
 		DRAW VISUALIZATIONS
@@ -201,15 +211,39 @@ function drawAllVis(dataset){
 }
 
 
+
+
+
+// Ratings View: VARIABLES and FUNCTIONS
+var ratingchart;
+
 function drawRatingYearVis(dataset) { 
 
   	console.log('Drawing Scatter Plot: Rating vs Year')
 
   	//Set the Tooltip Text
   	var tooltipText = function(d) {
-  									return "<strong>" + d.title + "</strong> ("  + d.year + ") <br/> My Rating " 
+  									return "<strong>" + d.title + "</strong> ("  + d.year + ") <br/> My Rating: " 
   									+ d.my_rating + "<br/> IMDB Rating: " + d.imdb_rating
   								};
+
+	
+	idLabel = "rating-year" //label to identify class of axes for this chart
+	
+	//Labels for Axes 
+	xLabel ="Year"
+	yLabel = "My Rating"
+
+
+	//Create SVG Chart And Axes Group DOM if needed (Runs only once during initial load)
+	if (typeof ratingchart == 'undefined')
+	{	ratingchart = createSVGChart("#rating-years");
+		console.log("Created Rating Chart: ", ratingchart);
+
+		createAxesDOM(ratingchart, idLabel, xLabel, yLabel );
+		console.log("Created Rating Chart Axes DOM", rating_axes_dom);
+	}
+
 
   	//Create Scales (Dynamically)
   	x_col = "year"
@@ -218,30 +252,42 @@ function drawRatingYearVis(dataset) {
   	var rating_xScale = createNumericScale(dataset, x_col, [0,w]);
 	var rating_yScale = createNumericScale(dataset, y_col, [h,0]);
 
-	var x = function(d) {return rating_xScale(d[x_col]);} //accessor function
-	var y = function(d) {return rating_yScale(d[y_col]);} //accessor function
+	var x = function(d) {return rating_xScale(d[x_col]);} 
+	var y = function(d) {return rating_yScale(d[y_col]);} 
 
-	//Create SVG Chart And AXES if needed (Runs only during initial)
-	if (typeof ratingchart == 'undefined')
-	{	ratingchart = createSVGChartAndAxes("#rating-years", rating_xScale, rating_yScale, "Year", "My Rating");
-		console.log("Created Rating Chart: ", ratingchart);
-	}
+	//Create xAxis, yAxis d3 axes with ticks (Dynamically)
+	//axes= createD3Axes(ratingchart, rating_xScale, rating_yScale, 10, 10);
+	//rating_x_axis = axes[0];
+	//rating_y_axis = axes[1];		
+	
+	var xAxis = d3.axisBottom().scale(xScale).tickFormat(d3.tickFormat("d"));
+    var yAxis = d3.axisLeft().scale(yScale);
+
+
+	//REDRAW axes Dynamically
+	g1 = d3.select(".x.axis."+idLabel)
+			.call(xAxis.tickFormat(d3.format("d")));
+
+	g2 = d3.select(".y.axis."+idLabel)
+		 .call(yAxis);
+
+
+    //REDRAW CIRCLES
 
   	//draw the circles initially and on each interaction with a control
 	var circle = ratingchart.selectAll(".rating-circle")
-	   .data(dataset);
+	   .data(dataset, key);
 
 
-  	console.log('Update')
+  	//console.log('Update')
 	circle
     	  .attr("cx", x)
     	  .attr("cy", y)
-    	  .attr("class", ".rating-circle")
     	  .style("opacity", 0.2)
      	 // .style("fill", function(d) { return col(d.type); })
         .on("mouseover", function(d) {    
             tooltip.transition()    
-                .duration(200)    
+                .duration(100)    
                 .style("opacity", .9);    
             tooltip.html(tooltipText(d))  
                 .style("left", (d3.event.pageX +5) + "px")   
@@ -253,20 +299,21 @@ function drawRatingYearVis(dataset) {
                 .style("opacity", 0); 
           });
 
-	console.log('Exit')
+	//console.log('Exit')
 	circle.exit().remove();
 
-    console.log('Enter')
+    //console.log('Enter')
 	circle.enter().append("circle")
     	  .attr("cx", x)
     	  .attr("cy", y)
     	  .attr("r", 4)
+    	  .attr("class", "rating-circle")
     	  .style("stroke", "black")
      	  //.style("fill", function(d) { return col(d.type); })
     	  .style("opacity", 0.2)
         .on("mouseover", function(d) {    
             tooltip.transition()    
-                .duration(200)    
+                .duration(100)    
                 .style("opacity", .9);    
             tooltip.html(tooltipText(d))  
                 .style("left", (d3.event.pageX +5) + "px")   
@@ -322,29 +369,31 @@ function filterType(mtype) {
 
 
 $(function() {
-    $( "#volumeslider" ).slider({
+	console.log("Inside Slider Handler");
+
+    $( "#yearslider" ).slider({
           range: true,
-          min: 0,
-          max: 1200,
-          values: [ 0, 1200], 
+          min: 1939,
+          max: 2017,
+          values: [1939, 2017], 
           slide: function( event, ui ) 
           {
-              $( "#myvolumetext" ).val( ui.values[ 0 ] + " to " + ui.values[ 1 ] ); 
-              filterVolume(ui.values);
+              $( "#yeartext" ).val( ui.values[ 0 ] + " to " + ui.values[ 1 ] ); 
+              filterYear(ui.values);
           } //end slide function
     }); //end slider
 
-    $( "#myvolumetext" ).val( $( "#volumeslider" ).slider( "values", 0 ) + " - " + $( "#volumeslider" ).slider( "values", 1 ) ); 
+    $( "#yeartext" ).val( $( "#yearslider" ).slider( "values", 0 ) + " - " + $( "#yearslider" ).slider( "values", 1 ) ); 
 }); //end function
 
 
 
-function filterVolume(volRange){
-    volSelected = volRange;
+function filterYear(yearRange){
+    yearsSelected = yearRange;
 
-    console.log('Filter Volume', volRange);
-    var volDataset = dataset.filter( function(d) { return d.vol >= volRange[0] && d.vol < volRange[1]} );
-    drawVis(volDataset);
+    //console.log('Filter Year', yearRange);
+    var filteredDataset = dataset.filter( function(d) { return d.year >= yearRange[0] && d.year < yearRange[1]} );
+    drawRatingYearVis(filteredDataset);
 }//End Filter Volume
 
 
