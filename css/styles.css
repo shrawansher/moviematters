@@ -13,8 +13,8 @@ html, body, .Container
 
 .Header
 {
-    margin-bottom: 10px;
-    background-color: #d3d3d3;
+    margin-bottom: 5px;
+    background-color: #47d1ae;
 }
 .Content
 {
@@ -47,7 +47,7 @@ html, body, .Container
 
 .RightContent
 {
-    background-color: #e4e4e4;
+    background-color: #daccce;
     float: right;
     margin-left: 10px;
 }
@@ -81,6 +81,9 @@ html, body, .Container
 }
 
 
+.helptext{
+    font-size: 8px;
+}
 
 
 

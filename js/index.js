@@ -6,23 +6,27 @@ console.log("WELCOME TO MOVIE MATTERS");
 var width = 750;
 var height = 450;
 var margin = {top: 20, right: 15, bottom: 30, left: 50};
-    var w = width - margin.left - margin.right;
-    var h = height - margin.top - margin.bottom;
+
+var w = width - margin.left - margin.right;
+var h = height - margin.top - margin.bottom;
 
 
 /*
 		GLOBAL DATA-RELATED VARIABLES
+		Useful to access variables and data for scales and viz
 */          
 var dataset;
-/*var maxVol;
-var maxPrice;
-var maxeValue;
-var volRange;
-*/
+
+var	maxYear;
+var maxRating;
+var maxRuntime;
+var maxImdbRating;
+var maxReveue;
 
 
 /*
 		GLOBAL FILTER-RELATED VARIABLES
+		To keep track of patterns and current selections on filters
 */          
 
 
@@ -30,53 +34,55 @@ var volRange;
 var patt = new RegExp("all"); //For TYPE filter
 
 
+
 /*
 		 READ DATA AND RELATED VARIABLES
 
+Column Names in Dataset:
+ film_id			title			Cast				MyTitle	
+ Rating				budget			id					imdb_id	
+ original_language	overview		poster_path			revenue	
+ runtime			imdb_numVotes	imdb_averageRating	imdb_startYear	
+ GenreMain
 */          
-
 
 
 console.log('Reading Data')
 
-/*
-d3.csv("stocks.csv", function(error, stocks) {
-//read in the data
-  if (error) return console.warn(error);
-     stocks.forEach(function(d) {
-     	d.price = +d.price;
-     	d.eValue = +d.eValue;
-     	d.vol = +d.vol;
-     	d.delta = +d.delta;
-  });
+d3.csv("data/final_data.csv", 
+	function(error, movies) {	
+			//read in the data
+			if (error) return console.warn(error);
+		     movies.forEach(function(d) {
+						d.film_id = +d.film_id;
+				     	d.Rating = +d.Rating;
+					 	d.id = +d.id;
+					 	d.budget = +d.budget;
+					 	d.revenue = +d.revenue;
+					 	d.runtime = +d.budget;
+					 	d.imdb_numVotes = +d.revenue;
+					 	d.imdb_averageRating = +d.imdb_averageRating;
+					 	d.imdb_startYear = +d.imdb_startYear;
+						});
+
+	//dataset is the full dataset -- maintain a copy of this at all times
+	 dataset = movies;
+
+	//max of different variables for sliders
+	  maxYear = d3.max(dataset.map(function(d) {return d.imdb_startYear;}));
+	  maxRating = d3.max(dataset.map(function(d) {return d['Rating'];}));
+	  maxRuntime = d3.max(dataset.map(function(d) {return d['runtime'];}));
+	  maxImdbRating = d3.max(dataset.map(function(d) {return d['imdb_averageRating'];}));
+	  maxReveue = d3.max(dataset.map(function(d) {return d['revenue'];}));
+
+	  console.log('Almost done Reading In Data');
 
 
-//none of these depend on the data being loaded so fine to define here
+	//all the data is now loaded, so draw the initial vis
+	//console.log('Drawing Initial Visualization')
+	//drawVis(dataset);
 
-
-
-//dataset is the full dataset -- maintain a copy of this at all times
-  dataset = stocks;
-
-
-
-
-//max of different variables for sliders
-  maxVol = d3.max(dataset.map(function(d) {return d.vol;}));
-  maxPrice = d3.max(dataset.map(function(d) {return d['price'];}));
-  maxeValue = d3.max(dataset.map(function(d) {return d['eValue'];}));
-
-  console.log('MAX VOL', maxVol);
-
-
-//all the data is now loaded, so draw the initial vis
-  console.log('Drawing Initial Visualization')
-  drawVis(dataset);
-
-});
-*/
-
-
+}); //end d3.csv
 
 
 /*
@@ -84,7 +90,6 @@ d3.csv("stocks.csv", function(error, stocks) {
 none of these depend on the data being loaded so fine to define here
 
 */          
-
 
 
 //SCALES For Timeline Div
@@ -97,7 +102,6 @@ none of these depend on the data being loaded so fine to define here
 
 
 //SVG and DOM tags for Genre Div
-
 
 
 //SCALES for Ratings Div
@@ -158,6 +162,7 @@ var tooltip = d3.select("body").append("div")
 
 /*
 		DRAW VISUALIZATIONS
+		Function Definitions to draw the graphs and charts on screen
 */          
 
 
@@ -220,6 +225,7 @@ function drawVis(dataset) { //draw the circles initially and on each interaction
 
 /*
 		 CODE FOR FILTERS
+		 Functions to redraw graphs on filter selections 
 */          
 
 //Code to Combine Filter Selections
@@ -257,7 +263,6 @@ function filterType(mtype) {
 
 }//End Filter Type
 
-//console.log("Max Volume", maxVol);
 
 $(function() {
     $( "#volumeslider" ).slider({
