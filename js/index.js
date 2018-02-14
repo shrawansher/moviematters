@@ -22,7 +22,7 @@ var maxRating;
 var maxRuntime;
 var maxImdbRating;
 var maxReveue;
-
+var countRecords;
 
 /*
 		GLOBAL FILTER-RELATED VARIABLES
@@ -39,15 +39,16 @@ var patt = new RegExp("all"); //For TYPE filter
 		 READ DATA AND RELATED VARIABLES
 
 Column Names in Dataset:
- film_id			title			Cast				MyTitle	
- Rating				budget			id					imdb_id	
- original_language	overview		poster_path			revenue	
- runtime			imdb_numVotes	imdb_averageRating	imdb_startYear	
- GenreMain
+film_id 			title		cast				my_title	
+my_rating			budget		id					imdb_id		
+original_language	overview	poster_path			revenue		
+runtime				votes		imdb_rating			year	
+genre	
+
 */          
 
 
-console.log('Reading Data')
+console.log('Before Reading Data')
 
 d3.csv("data/final_data.csv", 
 	function(error, movies) {	
@@ -55,34 +56,56 @@ d3.csv("data/final_data.csv",
 			if (error) return console.warn(error);
 		     movies.forEach(function(d) {
 						d.film_id = +d.film_id;
-				     	d.Rating = +d.Rating;
+				     	d.my_rating = +d.my_rating;
 					 	d.id = +d.id;
 					 	d.budget = +d.budget;
 					 	d.revenue = +d.revenue;
 					 	d.runtime = +d.budget;
-					 	d.imdb_numVotes = +d.revenue;
-					 	d.imdb_averageRating = +d.imdb_averageRating;
-					 	d.imdb_startYear = +d.imdb_startYear;
+					 	d.votes = +d.votes;
+					 	d.imdb_rating = +d.imdb_rating;
+					 	d.year = +d.year;
 						});
 
 	//dataset is the full dataset -- maintain a copy of this at all times
 	 dataset = movies;
 
 	//max of different variables for sliders
-	  maxYear = d3.max(dataset.map(function(d) {return d.imdb_startYear;}));
-	  maxRating = d3.max(dataset.map(function(d) {return d['Rating'];}));
+	  maxYear = d3.max(dataset.map(function(d) {return d.year;}));
+	  maxRating = d3.max(dataset.map(function(d) {return d['my_rating'];}));
 	  maxRuntime = d3.max(dataset.map(function(d) {return d['runtime'];}));
-	  maxImdbRating = d3.max(dataset.map(function(d) {return d['imdb_averageRating'];}));
+	  maxImdbRating = d3.max(dataset.map(function(d) {return d['imdb_rating'];}));
 	  maxReveue = d3.max(dataset.map(function(d) {return d['revenue'];}));
+	  countRecords = dataset.length;
 
-	  console.log('Almost done Reading In Data');
-
+	  console.log('Details of Dataset');
+	  console.log('# Records: ', dataset.length);
+	  console.log('Max Year : ', maxYear);
+	  console.log('Max Rating : ', maxRating);
+	  console.log('Max IMDB Rating : ', maxImdbRating);
+	  console.log('Max Runtime : ', maxRuntime);
+	  console.log('Max Revenue : ', maxReveue);
 
 	//all the data is now loaded, so draw the initial vis
-	//console.log('Drawing Initial Visualization')
-	//drawVis(dataset);
+	//console.log('Drawing Initial Visualizations')
+	//drawAllVis(dataset);
 
 }); //end d3.csv
+
+
+
+/*
+		 DATA ACCESSOR FUNCTIONS
+		 Functions to quickly get value of important columns for Scales, Axes
+*/          
+
+var title = function(d) {return d['title']]};
+var year = function (d) {return d['imdb_startYear']} ;
+var my_genre = function (d) {return d['genre']};
+var my_rating = function (d) {return d['my_rating']};
+var imdb_rating = function (d) {return d['imdb_rating']};
+var runtime = function (d) {return d['runtime']};
+var revenue = function (d) {return d['revenue']};
+
 
 
 /*
@@ -166,8 +189,16 @@ var tooltip = d3.select("body").append("div")
 */          
 
 
+function drawAllVis(dataset){
+	//Calls all individual drawVis functions for each chart/graph
 
-function drawVis(dataset) { //draw the circles initially and on each interaction with a control
+	drawRatingYearVis(dataset);
+}
+
+
+
+
+function drawRatingYearVis(dataset) { //draw the circles initially and on each interaction with a control
   console.log('Drawing Circles')
 
 	var circle = chart.selectAll("circle")
@@ -289,3 +320,7 @@ function filterVolume(volRange){
     var volDataset = dataset.filter( function(d) { return d.vol >= volRange[0] && d.vol < volRange[1]} );
     drawVis(volDataset);
 }//End Filter Volume
+
+
+
+console.log('End of JS File');
