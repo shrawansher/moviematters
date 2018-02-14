@@ -1,4 +1,4 @@
-console.log("WELCOME TO MOVIE MATTERS");
+console.log("WELCOME TO MOVIE MATTERS TIMELINE");
 
 /*
 		 GLOBAL LAYOUT CONSTANTS
@@ -23,7 +23,6 @@ var maxRuntime;
 var maxImdbRating;
 var maxReveue;
 var countRecords;
-
 
 /*
 		GLOBAL FILTER-RELATED VARIABLES
@@ -93,7 +92,6 @@ d3.csv("data/final_data.csv",
 }); //end d3.csv
 
 
-
 /*
 		 DATA ACCESSOR FUNCTIONS
 		 Functions to quickly get value of important columns for Scales, Axes
@@ -110,25 +108,12 @@ var revenue = function (d) {return d['revenue']};
 
 var formatCount = d3.format(",.0f");
 
-/*
-		 SCALES, AXES, TOOLTIPS and DOM ELEMENTS
-none of these depend on the data being loaded so fine to define here
-
-*/          
-
-
 // TOOLTIPS ! 
 //Currently only 1 tooltip
 var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
-
-
-/*
-		DRAW VISUALIZATIONS
-		Function Definitions to draw the graphs and charts on screen
-*/          
 
 
 function drawAllVis(dataset){
@@ -213,93 +198,16 @@ function drawTimelineVis(dataset) {
                 .style("opacity", 0); 
           });
 
+  timelineSvg.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + h + ")")
+      .call(d3.axisBottom(x_year).tickFormat(d3.format("d")));
 
-// bar.append("text")
-//     .attr("dy", ".75em")
-//     .attr("y", 6)
-//     .attr("x", (x_year(timelineBins[0].x1) - x_year(timelineBins[0].x0)) / 2)
-//     .attr("text-anchor", "middle")
-//     .text(function(d) { return formatCount(d.length); });
-
-timelineSvg.append("g")
-    .attr("class", "axis axis--x")
-    .attr("transform", "translate(0," + h + ")")
-    .call(d3.axisBottom(x_year).tickFormat(d3.format("d")));
-
-timelineSvg.append("g")
-    .attr("class", "axis axis--y")
-     // .attr("transform", "translate("+ w  + ", 0 )")
-    .call(d3.axisLeft(yTimeline));
+  timelineSvg.append("g")
+      .attr("class", "axis axis--y")
+       // .attr("transform", "translate("+ w  + ", 0 )")
+      .call(d3.axisLeft(yTimeline));
 
 
 } //End Draw Vis
 
-
-/*
-		 CODE FOR FILTERS 
-		 [NOT REWORKED fOR MOVIES]
-		 Functions to redraw graphs on filter selections 
-*/          
-
-//Code to Combine Filter Selections
-
-var typeSelected = "all";
-var volSelected = [0,1200]; 
-
-function filterCriteria(d){
-  var res = patt.test(mtype); //boolean
-
-  return d["type"]==typeSelected;
-}
-
-
-function filterType(mtype) {
-    console.log("Passed Value to DropDown:", mtype);
-    var res = patt.test(mtype); //boolean
-    console.log("Is all selected ?", res);
-
-    typeSelected = mtype; 
-
-    if(res==true) //All selected
-    {
-        drawVis(dataset); //reset to all images
-    }
-    
-    else
-    {
-        var filteredDataset = dataset.filter( function(d) { return d["type"]==mtype;}  );
-        drawVis(filteredDataset);
-    }
-
-}//End Filter Type
-
-
-$(function() {
-    $( "#volumeslider" ).slider({
-          range: true,
-          min: 0,
-          max: 1200,
-          values: [ 0, 1200], 
-          slide: function( event, ui ) 
-          {
-              $( "#myvolumetext" ).val( ui.values[ 0 ] + " to " + ui.values[ 1 ] ); 
-              filterVolume(ui.values);
-          } //end slide function
-    }); //end slider
-
-    $( "#myvolumetext" ).val( $( "#volumeslider" ).slider( "values", 0 ) + " - " + $( "#volumeslider" ).slider( "values", 1 ) ); 
-}); //end function
-
-
-
-function filterVolume(volRange){
-    volSelected = volRange;
-
-    console.log('Filter Volume', volRange);
-    var volDataset = dataset.filter( function(d) { return d.vol >= volRange[0] && d.vol < volRange[1]} );
-    drawVis(volDataset);
-}//End Filter Volume
-
-
-
-console.log('End of JS File');

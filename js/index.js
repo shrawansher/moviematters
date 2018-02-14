@@ -119,6 +119,8 @@ var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
+var formatCount = d3.format(",.0f");
+
 
 
 //SCALES For Timeline Div
@@ -205,6 +207,7 @@ function drawAllVis(dataset){
 	//Calls all individual drawVis functions for each chart/graph
 
 	drawRatingYearVis(dataset);
+	drawTimelineVis(dataset);
 	// Add more functions here
 }
 
@@ -259,7 +262,6 @@ function drawRatingYearVis(dataset) {
 	//rating_y_axis = axes[1];		
 	
 	var xAxis = d3.axisBottom().scale(rating_xScale);
-	//xAxis.tickFormat(d3.tickFormat("d"));
     var yAxis = d3.axisLeft().scale(rating_yScale);
 
 
@@ -327,6 +329,95 @@ function drawRatingYearVis(dataset) {
 
 } //End Draw Vis
 
+/* ---------TIMELINE VIS--------
+*/
+
+function drawTimelineVis(dataset) { 
+  var maxYear = d3.max(dataset.map(function(d) {return d.year;}));
+  var minYear = d3.min(dataset.map(function(d) {return d.year;}));
+
+//Set the Tooltip Text
+
+  var tooltipText = function(d) {
+                    return "<strong> Year: " 
+                    + d.x0 + "<br/> Movies Watched: " + d.length
+                  };
+
+  console.log('Drawing Timeline Histogram Plot')
+
+  var x_year = d3.scaleLinear()
+        .domain([minYear, maxYear])
+        .range([0, w]);
+
+  console.log("Years",x_year);
+
+  //SVG and DOM tags for Ratings Div
+  var timelineSvg = d3.select("#time-bars") //select svg element by id
+      .attr("width", w + margin.left + margin.right)
+      .attr("height", h + margin.top + margin.bottom+15)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+//Call the tip
+
+
+  var yearMap = dataset.map(function(d){return d.year;});
+  console.log("Year Map", yearMap);
+
+  const thresholds = d3.range(minYear, maxYear+1, 1); 
+  console.log("thresholds", thresholds);
+  var timelineBins = d3.histogram()
+                      .thresholds(thresholds)
+                    (yearMap);
+
+  var yTimeline = d3.scaleLinear()
+    .domain([0, d3.max(timelineBins, function(d) { return d.length; })])
+    .range([h, 0]);
+
+  console.log("bin widths: " , timelineBins);
+  console.log(x_year(1939));
+  console.log(x_year(2017));
+
+  var bar = timelineSvg.selectAll(".timebars")
+    .data(timelineBins)
+    .enter().append("g")
+    .attr("class", "timebars")
+    .attr("transform", function(d) { return "translate(" + x_year(d.x0) + "," + yTimeline(d.length) + ")"; });
+    
+
+
+  bar.append("rect")
+      .attr("x", 1)
+      .attr("width", x_year(timelineBins[0].x1) - x_year(timelineBins[0].x0) - 1)
+      .attr("height", function(d) { return h - yTimeline(d.length); })
+      .attr("fill","steelblue")
+      .on("mouseover", function(d) {    
+            tooltip.transition()    
+                .duration(200)    
+                .style("opacity", .9);    
+            tooltip.html(tooltipText(d))  
+                .style("left", (d3.event.pageX +5) + "px")   
+                .style("top", (d3.event.pageY - 28) + "px");
+          
+          })          
+      .on("mouseout", function(d) {   
+            tooltip.transition()    
+                .duration(500)    
+                .style("opacity", 0); 
+          });
+
+  timelineSvg.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + h + ")")
+      .call(d3.axisBottom(x_year).tickFormat(d3.format("d")));
+
+  timelineSvg.append("g")
+      .attr("class", "axis axis--y")
+       // .attr("transform", "translate("+ w  + ", 0 )")
+      .call(d3.axisLeft(yTimeline));
+
+
+} 
 
 /*
 		 CODE FOR FILTERS 
