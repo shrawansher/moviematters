@@ -24,7 +24,6 @@ var maxImdbRating;
 var maxReveue;
 var countRecords;
 
-
 /*
 		GLOBAL FILTER-RELATED VARIABLES
 		To keep track of patterns and current selections on filters
@@ -45,7 +44,6 @@ my_rating			budget		id					imdb_id
 original_language	overview	poster_path			revenue		
 runtime				votes		imdb_rating			year	
 genre	
-
 */          
 
 
@@ -241,7 +239,7 @@ function drawRatingYearVis(dataset) {
 		console.log("Created Rating Chart: ", ratingchart);
 
 		createAxesDOM(ratingchart, idLabel, xLabel, yLabel );
-		console.log("Created Rating Chart Axes DOM", rating_axes_dom);
+		console.log("Created Rating Chart Axes DOM");
 	}
 
 
@@ -260,8 +258,9 @@ function drawRatingYearVis(dataset) {
 	//rating_x_axis = axes[0];
 	//rating_y_axis = axes[1];		
 	
-	var xAxis = d3.axisBottom().scale(xScale).tickFormat(d3.tickFormat("d"));
-    var yAxis = d3.axisLeft().scale(yScale);
+	var xAxis = d3.axisBottom().scale(rating_xScale);
+	//xAxis.tickFormat(d3.tickFormat("d"));
+    var yAxis = d3.axisLeft().scale(rating_yScale);
 
 
 	//REDRAW axes Dynamically
@@ -337,15 +336,27 @@ function drawRatingYearVis(dataset) {
 
 //Code to Combine Filter Selections
 
-var typeSelected = "all";
-var volSelected = [0,1200]; 
+var filters;
+
+var yearSelected;
+var genresSelected;
+filters = {
+	yearSelected:10, 
+	genresSelected:10
+
+}
+
+/*
+var filterDefaults = {
+	var typeSelected = "all";
+	var volSelected = [0,1200]; }
+*/
 
 function filterCriteria(d){
   var res = patt.test(mtype); //boolean
 
   return d["type"]==typeSelected;
 }
-
 
 function filterType(mtype) {
     console.log("Passed Value to DropDown:", mtype);
