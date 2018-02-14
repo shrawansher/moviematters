@@ -98,7 +98,7 @@ d3.csv("data/final_data.csv",
 		 Functions to quickly get value of important columns for Scales, Axes
 */          
 
-var title = function(d) {return d['title']]};
+var title = function(d) {return d['title']};
 var year = function (d) {return d['imdb_startYear']} ;
 var my_genre = function (d) {return d['genre']};
 var my_rating = function (d) {return d['my_rating']};
