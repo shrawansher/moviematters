@@ -24,6 +24,7 @@ var maxImdbRating;
 var maxReveue;
 var countRecords;
 
+
 /*
 		GLOBAL FILTER-RELATED VARIABLES
 		To keep track of patterns and current selections on filters
@@ -87,7 +88,7 @@ d3.csv("data/final_data.csv",
 
 	//all the data is now loaded, so draw the initial vis
 	//console.log('Drawing Initial Visualizations')
-	//drawAllVis(dataset);
+	drawAllVis(dataset);
 
 }); //end d3.csv
 
@@ -109,32 +110,47 @@ var revenue = function (d) {return d['revenue']};
 
 
 /*
-		 SCALES, AXES and DOM ELEMENTS
+		 SCALES, AXES, TOOLTIPS and DOM ELEMENTS
 none of these depend on the data being loaded so fine to define here
 
 */          
 
+// TOOLTIPS ! 
+//Currently only 1 tooltip
+var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+
 
 //SCALES For Timeline Div
-
 
 //SVG and DOM tags for Timeline Div
 
 
 //SCALES for Genre Div
 
-
 //SVG and DOM tags for Genre Div
 
 
 //SCALES for Ratings Div
+var x_year = d3.scaleLinear()
+        .domain([1930, 2017])
+        .range([0, w]);
 
+var y_myrating = d3.scaleLinear()
+        .domain([0, 10])
+        .range([h, 0]);
+
+var col_genre = d3.scaleOrdinal(d3.schemeCategory20);
+
+
+
+//OLD SCALES (Stocks)
 var col = d3.scaleOrdinal(d3.schemeCategory10);
-
 var colLightness = d3.scaleLinear()
 	.domain([0, 1200])
 	.range(["#FFFFFF", "#000000"])
-
 
 var x = d3.scaleLinear()
         .domain([0, 1000])
@@ -146,42 +162,30 @@ var y = d3.scaleLinear()
 
 
 //SVG and DOM tags for Ratings Div
-var svg = d3.select("body").append("svg")
-    .attr("width", w + margin.left + margin.right)
-    .attr("height", h + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-var chart = d3.select("#rating-years")
+var ratingchart = d3.select("#rating-years") //select svg element by id
     .attr("width", w + margin.left + margin.right)
     .attr("height", h + margin.top + margin.bottom+15)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-var tooltip = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
 
-
- chart.append("g")
+ratingchart.append("g")
       .attr("transform", "translate(0," + h + ")")
-      .call(d3.axisBottom(x))
+      .call(d3.axisBottom(x_year))
      .append("text")
       .attr("x", w)
       .attr("y", -6)
       .style("text-anchor", "end")
       .text("Price");
 
-      chart.append("g")
-       .call(d3.axisLeft(y))
+ratingchart.append("g")
+     .call(d3.axisLeft(y_myrating))
       .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
       .text("True Value");
-
-
 
 /*
 		DRAW VISUALIZATIONS
@@ -193,24 +197,28 @@ function drawAllVis(dataset){
 	//Calls all individual drawVis functions for each chart/graph
 
 	drawRatingYearVis(dataset);
+	// Add more functions here
 }
 
 
+function drawRatingYearVis(dataset) { 
 
+  	console.log('Drawing Scatter Plot: Rating vs Year')
 
-function drawRatingYearVis(dataset) { //draw the circles initially and on each interaction with a control
-  console.log('Drawing Circles')
-
-	var circle = chart.selectAll("circle")
+  	//draw the circles initially and on each interaction with a control
+	var circle = ratingchart.selectAll("circle")
 	   .data(dataset);
 
-  var tooltipText = function(d) {return "Price: " + d.price + "<br/>eValue: "  + d.eValue + "<br/>Vol: " + d.vol + "<br/>Delta: " + d.delta}
+  	var tooltipText = function(d) {
+  									return "<b>" + d.title + "</b> ("  + d.year + ") <br/> My Rating " 
+  									+ d.my_rating + "<br/> IMDB Rating: " + d.imdb_rating
+  								};
 
-  console.log('Update')
+  	console.log('Update')
 	circle
-    	  .attr("cx", function(d) { return x(d.price);  })
-    	  .attr("cy", function(d) { return y(d.eValue);  })
-     	  .style("fill", function(d) { return col(d.type); })
+    	  .attr("cx", function(d) { return x_year(d.year);  })
+    	  .attr("cy", function(d) { return y_myrating(d.my_rating);  })
+     	 // .style("fill", function(d) { return col(d.type); })
         .on("mouseover", function(d) {    
             tooltip.transition()    
                 .duration(200)    
@@ -218,23 +226,23 @@ function drawRatingYearVis(dataset) { //draw the circles initially and on each i
             tooltip.html(tooltipText(d))  
                 .style("left", (d3.event.pageX +5) + "px")   
                 .style("top", (d3.event.pageY - 28) + "px");  
-            })          
+          })          
         .on("mouseout", function(d) {   
             tooltip.transition()    
                 .duration(500)    
                 .style("opacity", 0); 
-        });;
+          });
 
-  console.log('Exit')
+	console.log('Exit')
 	circle.exit().remove();
 
-  console.log('Enter')
+    console.log('Enter')
 	circle.enter().append("circle")
-    	  .attr("cx", function(d) { return x(d.price);  })
-    	  .attr("cy", function(d) { return y(d.eValue);  })
+    	  .attr("cx", function(d) { return x_year(d.year);  })
+    	  .attr("cy", function(d) { return y_myrating(d.my_rating);  })
     	  .attr("r", 4)
     	  .style("stroke", "black")
-     	  .style("fill", function(d) { return col(d.type); })
+     	  //.style("fill", function(d) { return col(d.type); })
     	  .style("opacity", 0.5)
         .on("mouseover", function(d) {    
             tooltip.transition()    
@@ -243,26 +251,24 @@ function drawRatingYearVis(dataset) { //draw the circles initially and on each i
             tooltip.html(tooltipText(d))  
                 .style("left", (d3.event.pageX +5) + "px")   
                 .style("top", (d3.event.pageY - 28) + "px");  
-            })          
+          })          
         .on("mouseout", function(d) {   
             tooltip.transition()    
                 .duration(500)    
                 .style("opacity", 0); 
-        });
+          });
 
 
 } //End Draw Vis
 
 
 /*
-		 CODE FOR FILTERS
+		 CODE FOR FILTERS 
+		 [NOT REWORKED fOR MOVIES]
 		 Functions to redraw graphs on filter selections 
 */          
 
 //Code to Combine Filter Selections
-
-
-
 
 var typeSelected = "all";
 var volSelected = [0,1200]; 
