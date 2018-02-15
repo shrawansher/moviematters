@@ -291,6 +291,8 @@ function drawRatingYearVis(dataset) {
     var circle = ratingchart.selectAll(".rating-circle")
         .data(dataset, key);
 
+    var t = d3.transition()
+      .duration(750);
 
     //console.log('Update')
     circle
@@ -313,30 +315,51 @@ function drawRatingYearVis(dataset) {
         });
 
     //console.log('Exit')
-    circle.exit().remove();
+    circle.exit()
+        .attr("class", "rating-circle exit")
+        .transition(t)
+          .attr("y", 60)
+          .style("fill-opacity", 1e-6)  //exit transition
+          .remove();
 
     //console.log('Enter')
     circle.enter().append("circle")
+        .attr("class", "rating-circle enter")
         .attr("cx", x)
         .attr("cy", y)
         .attr("r", 4)
-        .attr("class", "rating-circle")
         .style("stroke", "black")
-        //.style("fill", function(d) { return col(d.type); })
-        .style("opacity", 0.2)
+        .style("opacity", 0.5)
         .on("mouseover", function(d) {
+            d3.select(this)
+            .transition()
+            .duration(500)
+            .style("fill-opacity", .35)
+            .attr("r", 10)
+
             tooltip.transition()
                 .duration(100)
                 .style("opacity", .9);
             tooltip.html(tooltipText(d))
-                .style("left", (d3.event.pageX + 5) + "px")
+                .style("left", (d3.event.pageX + 10) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
         })
         .on("mouseout", function(d) {
             tooltip.transition()
-                .duration(500)
+                .duration(300)
                 .style("opacity", 0);
-        });
+
+            d3.select(this)
+            .transition()
+            .duration(100)
+            .style("fill-opacity", 1)
+            .attr("r", 4)
+        })
+        .style("fill-opacity", 1e-6)    //enter transition
+        .transition(t)
+          .attr("y", 0)
+          .style("fill-opacity", 0.2)
+        
 
 } //End Draw Vis
 
