@@ -179,9 +179,10 @@ function createNumericScale(dataset, col, pixelRange) {
     var colValue = function(d) { return d[col]; }
 
     var extent = d3.extent(dataset, colValue);
+    var colspan = extent[1] -extent[0];
 
     var scale = d3.scaleLinear()
-        .domain(extent)
+        .domain([extent[0] - (colspan * .05), extent[1] + (colspan * .05)]) //Prevent data points from touching axes
         .range(pixelRange);
 
     return scale; //scale function
