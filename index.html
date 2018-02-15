@@ -30,8 +30,8 @@
                     <!--Filter Section For 'YEAR' Slider  -->
 
                     <label for="yeartext">Chosen Year Range:</label>
-				    <input type="text" id="yeartext" readonly style="border:0; color:#f6931f; font-weight:bold;">
-				    <div id="yearslider" class="slider-range"></div>
+        				    <input type="text" id="yeartext" readonly style="border:0; color:#f6931f; font-weight:bold;">
+        				    <div id="yearslider" class="slider-range"></div>
 
                     <!--Filter Section For 'GENRE' DropDown  -->
 
@@ -39,13 +39,28 @@
 
                     <!--Filter Section For 'MY RATING' Slider  -->
 
+
+
+                    <!--Filter Section For 'UnderRated, OverRated' -->
+                    <label for="underoverText">Underrated or Overrated:</label> 
+                    <input type="text" id="underoverText" readonly style="border:0; color:#f6931f; font-weight:bold;">
+                    <br/>
+                    <select id="underoverselectform"> 
+                        <option value="all">All Movies</option>
+                        <option value="underrated">Underrated</option>
+                        <option value="overrated">Overrated</option>
+                    </select>
+
+                    <script>
+                      document.getElementById("underoverselectform").onchange =function(){filterColumn("ratingdifftype", this.value);}
+                    </script>
                 </div>
                 
                 <div id="visualization-div" class="LeftContent">
                  	<h3>Timeline View</h3>
                  	<p class="view-summary">When were the movies you've watched released?</p>
 <!--                  	<p class="helptext" > Select filters to play around</p>
- -->                	
+-->                	
                 	<div id="timeline-div" class="visualization">
                 		<svg id="time-bars" class="chart"></svg>
 					</div>
@@ -54,13 +69,12 @@
 
                  	<h3>Genre View</h3>
                  	<p class="view-summary">Which movie genres do you watch or like?</p>
-<!--                  	<p class="helptext" > Select filters to play around</p>
- -->                	<div id="genre-div" class="visualization">
+<!--                  	<p class="helptext" > Select filters to play around</p> -->
+                	<div id="genre-div" class="visualization">
                 		<svg id="genre-bars" class="chart"></svg>
-					</div>
+					       </div>
 
 					<hr>
-
                  	<h3>Your Ratings View</h3>
 
                  	<p class="view-summary">How do you rate your movies?</p>

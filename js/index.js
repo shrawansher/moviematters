@@ -520,11 +520,17 @@ var subset_fn = function(d) {
     {    res = res && d.year >= filters.year[0] && d.year <= filters.year[1]; }
 
     if( res!=false && typeof(filters.my_rating) != 'undefined')
-    {    res = res && d.my_rating >= filters.my_rating[0] && d.my_rating <= filters.my_rating[1]; }
+    {    res = d.my_rating >= filters.my_rating[0] && d.my_rating <= filters.my_rating[1]; }
 
     if( res!=false && typeof(filters.imdb_rating) != 'undefined')
-    {    res = res && d.imdb_rating >= filters.imdb_rating[0] && d.imdb_rating <= filters.imdb_rating[1]; }
+    {    res = d.imdb_rating >= filters.imdb_rating[0] && d.imdb_rating <= filters.imdb_rating[1]; }
 
+    if( res!=false && typeof(filters.ratingdifftype) != 'undefined' && filters.ratingdifftype!="all")
+    {     if(filters.ratingdifftype == "underrated")
+                res = (d.my_rating - d.imdb_rating >= 1.969); //95th percentile for significance 
+          else res = (d.imdb_rating - d.my_rating >= 1.969); //95th percentile for significance 
+    }
+    
     return res;
 }
 
