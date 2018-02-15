@@ -503,33 +503,70 @@ function drawTimelineVis(dataset) {
 
 /*
      CODE FOR FILTERS 
-     [NOT REWORKED fOR MOVIES]
      Functions to redraw graphs on filter selections 
 */
 
-//Code to Combine Filter Selections
+//Store Current Filter Selections
+var filters = {}
 
-var filters;
 
-var yearSelected;
-var genresSelected;
-filters = {
-    yearSelected: 10,
-    genresSelected: 10
+var subset_fn = function(d) { 
+//SUBSET Function
+//iterate over filters and return true or false for each data point d
+//Used to create filtered dataset
 
+    var res = true;
+    if( typeof(filters.year) != 'undefined')
+    {    res = res && d.year >= filters.year[0] && d.year <= filters.year[1]; }
+
+    if( res!=false && typeof(filters.my_rating) != 'undefined')
+    {    res = res && d.my_rating >= filters.my_rating[0] && d.my_rating <= filters.my_rating[1]; }
+
+    if( res!=false && typeof(filters.imdb_rating) != 'undefined')
+    {    res = res && d.imdb_rating >= filters.imdb_rating[0] && d.imdb_rating <= filters.imdb_rating[1]; }
+
+    return res;
 }
+
+
+function filterColumn(column, value){
+// Function to store updated Range/ checkbox/dropdown value, re-filter data and redraw Visualizations
+// Use for columns that filter based on Sliders Checkboxes and DropDowns
+
+    filters[column] = value;
+    console.log("Changed Filter for ", column, "\n value = ", value);
+
+    var filteredDataset = dataset.filter(subset_fn);
+    drawAllVis(filteredDataset);
+}
+
+
+
 
 /*
-var filterDefaults = {
-  var typeSelected = "all";
-  var volSelected = [0,1200]; }
+        UI CALLBACKS : RANGE SLIDERS, CHECKBOXES, DROPDOWNS
 */
 
-function filterCriteria(d) {
-    var res = patt.test(mtype); //boolean
+// Range Slider for YEAR
+$(function() {
+    console.log("Inside Slider Handler");
 
-    return d["type"] == typeSelected;
-}
+    $("#yearslider").slider({
+        range: true,
+        min: 1939,
+        max: 2017,
+        values: [1939, 2017],
+        slide: function(event, ui) {
+            $("#yeartext").val(ui.values[0] + " to " + ui.values[1]);
+            filterColumn( "year", ui.values);
+        } //end slide function
+    }); //end slider
+
+    $("#yeartext").val($("#yearslider").slider("values", 0) + " - " + $("#yearslider").slider("values", 1));
+}); //end function
+
+
+/*
 
 function filterType(mtype) {
     console.log("Passed Value to DropDown:", mtype);
@@ -547,37 +584,6 @@ function filterType(mtype) {
     }
 
 } //End Filter Type
-
-
-$(function() {
-    console.log("Inside Slider Handler");
-
-    $("#yearslider").slider({
-        range: true,
-        min: 1939,
-        max: 2017,
-        values: [1939, 2017],
-        slide: function(event, ui) {
-            $("#yeartext").val(ui.values[0] + " to " + ui.values[1]);
-            filterYear(ui.values);
-        } //end slide function
-    }); //end slider
-
-    $("#yeartext").val($("#yearslider").slider("values", 0) + " - " + $("#yearslider").slider("values", 1));
-}); //end function
-
-
-
-function filterYear(yearRange) {
-
-    yearsSelected = yearRange;
-
-    console.log('Filter Year', yearRange);
-    var filteredDataset = dataset.filter(function(d) { return d.year >= yearRange[0] && d.year <= yearRange[1] });
-
-    drawAllVis(filteredDataset);
-} //End Filter Volume
-
-
+*/
 
 console.log('End of JS File');

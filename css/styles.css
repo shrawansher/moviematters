@@ -51,6 +51,12 @@ html, body, .Container
     margin-left: 10px;
 }
 
+.timebars:hover{
+
+    fill: black;
+
+
+}
 
 .tooltip {
 	position: absolute;
