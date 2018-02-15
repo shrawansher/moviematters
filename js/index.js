@@ -261,8 +261,8 @@ function drawRatingYearVis(dataset) {
     x_col = "year"
     y_col = "my_rating"
 
-    var rating_xScale = createNumericScale(dataset, x_col, [0, w]);
-    var rating_yScale = createNumericScale(dataset, y_col, [h, 0]);
+    var rating_xScale = createNumericScale(dataset, x_col, [0, w]); // Data-dependent year scale
+    var rating_yScale = d3.scaleLinear().domain([0,10]).range([h, 0]); //FIXED Rating Scale from 0 to 10
 
     var x = function(d) { return rating_xScale(d[x_col]); }
     var y = function(d) { return rating_yScale(d[y_col]); }
