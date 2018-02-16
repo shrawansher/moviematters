@@ -27,6 +27,7 @@ var revenueExtent;
 var countRecords;
 
 var genres;
+var genresSelected={};
 /*
     GLOBAL FILTER-RELATED VARIABLES
     To keep track of patterns and current selections on filters
@@ -103,6 +104,13 @@ d3.csv("data/final_data.csv",
         console.log('Extent Revenue : ', revenueExtent);
 
         console.log("Genre List",genres);
+
+        for(i=0;i<genres.length;i++){
+            genresSelected[genres[i]] = true;
+
+        }
+
+        console.log("GENRE SELECTED",genresSelected);
 
         //all the data is now loaded, so draw the initial vis
         //console.log('Drawing Initial Visualizations')
@@ -542,16 +550,18 @@ function drawGenreFilter(dataset){
         .attr("x", 26)
         .attr("dy", ".9em")
         .text(function(d) {
-            console.log("DAssss", d);
             return d;
         });
 
 
     legend.on("click", (function(d){
                         var y = "sqbar color-" + color(d).substring(1);
-                        console.log("Class =" + y);
+                        console.log("Class =" ,d);
+                        genresSelected[d] = !genresSelected[d] ;
                         var opacity  = document.getElementsByClassName(y)[0].style.opacity;
                         console.log ("Old opacity =" + opacity);
+
+
                       
                         if (opacity === "1") {
                             console.log("Reducing opacity");
@@ -565,13 +575,12 @@ function drawGenreFilter(dataset){
        
                         opacity  = document.getElementsByClassName(y)[0].style.opacity;
                         console.log ("New opacity =" + opacity);
+                        filterColumn("genresSelected",genresSelected);
+
                         
                 }
                 ));
-    console.log("Legend",legend);
 
-  
-    console.log("bye");
 
 
 }
@@ -584,7 +593,7 @@ function drawGenreFilter(dataset){
 */
 
 //Store Current Filter Selections
-var filters = {}
+var filters = {};
 
 
 var subset_fn = function(d) { 
@@ -601,6 +610,10 @@ var subset_fn = function(d) {
 
     if( res!=false && typeof(filters.runtime) != 'undefined')
     {    res = d.runtime >= filters.runtime[0] && d.runtime <= filters.runtime[1]; }
+    
+    if( res!= false && typeof(filters.genresSelected) != 'undefined'){
+        res = genresSelected[d.genre];
+    }
 
     if( res!=false && typeof(filters.ratingdifftype) != 'undefined' && filters.ratingdifftype!="all")
     {     if(filters.ratingdifftype == "underrated")
