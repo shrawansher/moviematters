@@ -122,7 +122,6 @@ var tooltip = d3.select("body").append("div")
 var formatCount = d3.format(",.0f");
 
 
-
 //SCALES For Timeline Div
 
 //SVG and DOM tags for Timeline Div
@@ -267,6 +266,20 @@ function drawRatingYearVis(dataset) {
 
     var x = function(d) { return rating_xScale(d[x_col]); }
     var y = function(d) { return rating_yScale(d[y_col]); }
+
+    // var jitterVal= 8;
+
+    // var getYPosition = function(d, i) {
+    //     var position = y(d);
+
+    //     if (true) 
+    //     {
+    //         return i%2 === 0 ?
+    //             position + Math.random()*jitterVal
+    //           : position - Math.random()*jitterVal
+    //     } 
+    //     else { return position; }
+    // }
 
     //Create xAxis, yAxis d3 axes with ticks (Dynamically)
     //axes= createD3Axes(ratingchart, rating_xScale, rating_yScale, 10, 10);
@@ -575,6 +588,8 @@ function filterColumn(column, value){
         UI CALLBACKS : RANGE SLIDERS, CHECKBOXES, DROPDOWNS
 */
 
+
+
 // Range Slider for YEAR
 $(function() {
     console.log("Inside Slider Handler");
@@ -593,25 +608,5 @@ $(function() {
     $("#yeartext").val($("#yearslider").slider("values", 0) + " - " + $("#yearslider").slider("values", 1));
 }); //end function
 
-
-/*
-
-function filterType(mtype) {
-    console.log("Passed Value to DropDown:", mtype);
-    var res = patt.test(mtype); //boolean
-    console.log("Is all selected ?", res);
-
-    typeSelected = mtype;
-
-    if (res == true) //All selected
-    {
-        drawVis(dataset); //reset to all images
-    } else {
-        var filteredDataset = dataset.filter(function(d) { return d["type"] == mtype; });
-        drawVis(filteredDataset);
-    }
-
-} //End Filter Type
-*/
 
 console.log('End of JS File');

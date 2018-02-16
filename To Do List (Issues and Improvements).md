@@ -3,13 +3,16 @@
 ## UI / Look & Feel
 * Range Sliders CSS
 * DropDown CSS
-* Revise Text on Left Content
+* ~~Revise Text on Left Content
 * Layout (Fix Width of RightContent)
+* Add Icons
 
 ## Filters section
 * Add Text for showing No. of Movies Selected
 * Add Slider (My Rating)
 * Add color-based checkbox
+
+
 
 ## Charts section
 * Add Jitter (Rating Chart)

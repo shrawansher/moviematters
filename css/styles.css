@@ -130,11 +130,11 @@ html, body, .Container
     font-size: 8px;
 }
 
-.slidercontainer {
+/*.slidercontainer {
     align-content: center
     float:center;
     width: 90%;
-}
+}*/
 
 .slider-range {
     -webkit-appearance: none;
