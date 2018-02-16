@@ -9,6 +9,7 @@
   <script src="http://d3js.org/d3.v4.min.js"></script>
   <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
   <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.3.0.min.js"></script>
 
 	<title>Movie Matters</title>
 </head>
@@ -50,6 +51,8 @@
                         <option value="underrated">Underrated</option>
                         <option value="overrated">Overrated</option>
                     </select>
+                    <br>
+                    <svg id="genre-filter"></svg>
 
                     <script>
                       document.getElementById("underoverselectform").onchange =function(){filterColumn("ratingdifftype", this.value);}

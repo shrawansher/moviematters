@@ -24,6 +24,7 @@ var maxImdbRating;
 var maxReveue;
 var countRecords;
 
+var genres;
 /*
     GLOBAL FILTER-RELATED VARIABLES
     To keep track of patterns and current selections on filters
@@ -75,6 +76,7 @@ d3.csv("data/final_data.csv",
         maxImdbRating = d3.max(dataset.map(function(d) { return d['imdb_rating']; }));
         maxReveue = d3.max(dataset.map(function(d) { return d['revenue']; }));
         countRecords = dataset.length;
+        genres = [...new Set(dataset.map(function(d){return d.genre;}))];
 
         console.log('Details of Dataset');
         console.log('# Records: ', dataset.length);
@@ -84,8 +86,12 @@ d3.csv("data/final_data.csv",
         console.log('Max Runtime : ', maxRuntime);
         console.log('Max Revenue : ', maxReveue);
 
+        console.log("Genre List",genres);
+
         //all the data is now loaded, so draw the initial vis
         //console.log('Drawing Initial Visualizations')
+
+        drawGenreFilter(dataset);
         drawAllVis(dataset);
 
     }); //end d3.csv
@@ -121,6 +127,7 @@ var tooltip = d3.select("body").append("div")
 
 var formatCount = d3.format(",.0f");
 
+// For Multi Select
 
 
 //SCALES For Timeline Div
@@ -364,24 +371,16 @@ function drawTimelineVis(dataset) {
     console.log('Drawing Timeline Histogram Plot')
 
     // X-Scale Function
-    //----EXPERIMENTAL
-    // var xChart = d3.scaleBand()
+
+    var x_col = "year";
+
+    var x_year = createNumericScale(dataset, x_col, [0, w]); // Data-dependent year scale
+    // var x_year = d3.scaleLinear()
+    //     .domain([minYear, maxYear])
     //     .range([0, w]);
-    // var yChart = d3.scaleLinear()
-    //     .range([h, 0]);
-
-    // var xAxis = d3.axisBottom(xChart);
-    // var yAxis = d3.axisLeft(yChart);
 
 
-
-    var x_year = d3.scaleLinear()
-        .domain([minYear, maxYear])
-        .range([0, w]);
-
-
-    var barWidth = w/dataset.length;
-    // console.log("Years", x_year);
+    // console.log("Bar width", barWidth);
     
     //Create SVG Chart And Axes Group DOM if needed (Runs only once during initial load)
     if (typeof timelineSvg == 'undefined') {
@@ -393,12 +392,6 @@ function drawTimelineVis(dataset) {
     }
 
     //SVG and DOM tags for Ratings Div
-    // var timelineSvg = d3.select("#time-bars") //select svg element by id
-    //     .attr("width", w + margin.left + margin.right)
-    //     .attr("height", h + margin.top + margin.bottom + 15)
-    //     .append("g")
-    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
 
     // Create the Year Array
     var yearMap = dataset.map(function(d) { return d.year; });
@@ -420,6 +413,7 @@ function drawTimelineVis(dataset) {
     console.log(x_year(1939));
     console.log(x_year(2017));
     //Map the timeline chart group to all the data points
+    //var barWidth = w/thresholds;
 
     var bar = timelineSvg.selectAll(".timebars")
         .remove().exit()
@@ -429,10 +423,10 @@ function drawTimelineVis(dataset) {
 
     bar.enter().append("rect")
         .attr("class","timebars")
-        .attr("x", function(d){ return x_year(d.x1)})
+        .attr("x", function(d){ return x_year(d.x0)})
         .attr("y",function(d){return yTimeline(d.length)})
-        // .attr("width", x_year(timelineBins[0].x1) - x_year(timelineBins[0].x0) - 1)
-        .attr("width", barWidth)
+        .attr("width", x_year(timelineBins[0].x1) - x_year(timelineBins[0].x0) - 1)
+        //.attr("width", barWidth)
         .attr("height", function(d) { return h - yTimeline(d.length); })
         .attr("fill", "steelblue")
         .on("mouseover", function(d) {
@@ -450,43 +444,8 @@ function drawTimelineVis(dataset) {
                 .style("opacity", 0);
         });
 
-
-      
-
-
-    // bar.enter().append("g")
-    //     .attr("class", "timebars")
-    //     .attr("transform", function(d) { return "translate(" + x_year(d.x0) + "," + yTimeline(d.length) + ")"; });
-
-
-   
-    // // Insert bars
-    // bar.append("rect")
-    //     .attr("x", 1)
-    //     .attr("width", x_year(timelineBins[0].x1) - x_year(timelineBins[0].x0) - 1)
-    //     .attr("height", function(d) { return h - yTimeline(d.length); })
-    //     .attr("fill", "steelblue")
-    //     .on("mouseover", function(d) {
-    //         tooltip.transition()
-    //             .duration(200)
-    //             .style("opacity", .9);
-    //         tooltip.html(tooltipText(d))
-    //             .style("left", (d3.event.pageX + 5) + "px")
-    //             .style("top", (d3.event.pageY - 28) + "px");
-
-    //     })
-    //     .on("mouseout", function(d) {
-    //         tooltip.transition()
-    //             .duration(500)
-    //             .style("opacity", 0);
-    //     });
-
-
-
     console.log("TimeLine SVG", timelineSvg.select(".x.axis."+idLabel));
     
- 
-
     // timelineSvg.append("g")
     //     .attr("class", "axis axis--x")
     //     .attr("transform", "translate(0," + h + ")")
@@ -494,13 +453,81 @@ function drawTimelineVis(dataset) {
                   .call(d3.axisBottom(x_year)
                     .tickFormat(d3.format("d")));
 
-
         // .attr("transform", "translate("+ w  + ", 0 )")
     timelineSvg.select(".y.axis."+idLabel)
               .call(d3.axisLeft(yTimeline));
 
+}
+
+function drawGenreFilter(dataset){
+
+    var color = d3.scaleOrdinal(d3.schemeCategory20).domain(genres);
+    // console.log("Colors",color("SCI_FI"));
+    console.log("Colors domain",color.domain());
+
+
+    var legendSvg = d3.select("#genre-filter").append("g").attr("class","left-legend");
+
+    var legend = legendSvg.selectAll(".legend")
+                            .data(color.domain())
+                            .enter().append("g")
+                            .attr("class", function(d) { 
+                             return  "sqbar " + "color-" + color(d).substring(1) + " legend"; })
+                            .attr("transform", function(d, i) {
+                             return "translate(0," + i * 20 + ")";
+                                    })
+                            .style("opacity",1);
+
+    legend.append("rect")
+                            .attr("x",3 )
+                            .attr("width", 18)
+                            .attr("height", 18)
+                            .style("fill", color);
+                                                        // .on("mouseover", function(d) {
+                            // legendSvg.selectAll("rect.color-" + color(d).substring(1)).style("opacity", 0.5).attr("stroke-width","3");
+                            //  })
+                            // .on("mouseout", function(d) {
+                            //     legendSvg.selectAll("rect.color-" + color(d).substring(1)).style("opacity",1).attr("stroke-width","0");
+                            //  });
+    legend.append("text")
+        .attr("x", 26)
+        .attr("dy", ".9em")
+        .text(function(d) {
+            console.log("DAssss", d);
+            return d;
+        });
+
+
+    legend.on("click", (function(d){
+                        var y = "sqbar color-" + color(d).substring(1);
+                        console.log("Class =" + y);
+                        var opacity  = document.getElementsByClassName(y)[0].style.opacity;
+                        console.log ("Old opacity =" + opacity);
+                      
+                        if (opacity === "1") {
+                            console.log("Reducing opacity");
+                            legendSvg.selectAll(".sqbar.color-" + color(d).substring(1)).style("opacity", "0.2");
+                            //svg.selectAll(".rect.color-" + color(d).substring(1)).remove();
+                        }
+                        else{
+                            legendSvg.selectAll(".sqbar.color-" + color(d).substring(1)).style("opacity", "1");
+                            //svg.selectAll(".rect.color-" + color(d).substring(1)).d.enter().append();
+                        }
+       
+                        opacity  = document.getElementsByClassName(y)[0].style.opacity;
+                        console.log ("New opacity =" + opacity);
+                        
+                }
+                ));
+    console.log("Legend",legend);
+
+  
+    console.log("bye");
+
 
 }
+
+
 
 /*
      CODE FOR FILTERS 
@@ -546,8 +573,6 @@ function filterColumn(column, value){
     var filteredDataset = dataset.filter(subset_fn);
     drawAllVis(filteredDataset);
 }
-
-
 
 
 /*

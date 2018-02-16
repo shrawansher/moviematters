@@ -104,7 +104,10 @@ html, body, .Container
     font-size: 8px;
 }
 
-
+#genre-filter{
+    height: 300px;
+    padding: 10px 10px;
+}
 
 
 
