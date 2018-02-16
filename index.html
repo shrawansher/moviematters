@@ -29,7 +29,14 @@
             <div class="Wrapper">
                 
                 <div id ="filters-div" class="RightContent">
-                    <p>Filters go here</p>
+                    <!-- Information Section -->
+                    <div class="info-div">
+                      <p class="info" id="count-info"></p>
+                      <p class="info" id="avg-rating-info"></p>
+                      <p class="info" id="imdb-rating-info"></p>
+                      <p class="helptext" id="filter-helptext">Play around with the filters!</p>
+                    </div>
+
                     <!--Filter Section For 'YEAR' Slider  -->
                       <label class= "choice-label" for="yeartext">Chosen Year Range:</label>
           				    <input type="text" class= "choice-value" id="yeartext" readonly style="border:0; color:#f6931f; font-weight:bold;">
@@ -50,9 +57,7 @@
 
                     <!--Filter Section For 'UnderRated, OverRated' -->
                     <label class= "choice-label" for="underoverText">Underrated or Overrated:</label> 
-                    <input type="text" class= "choice-value" id="underoverText" readonly style="border:0; color:#f6931f; font-weight:bold;">
-                    <br/>
-                    
+                    <input type="text" class= "choice-value" id="underoverText" readonly style="border:0; color:#f6931f; font-weight:bold;">                    
                     <select id="underoverselectform"> 
                         <option value="all">All Movies</option>
                         <option value="underrated">Underrated</option>

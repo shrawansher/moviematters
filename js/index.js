@@ -26,16 +26,18 @@ var revenueExtent;
 
 var countRecords;
 
-var genres;
-var genresSelected={};
+
 /*
     GLOBAL FILTER-RELATED VARIABLES
     To keep track of patterns and current selections on filters
 */
 
 
+var genres;
+var genresSelected={};
+
 //start with the type set to all, changes this variable everytime the dropdown for type is changed
-var patt = new RegExp("all"); //For TYPE filter
+//var patt = new RegExp("all"); //For TYPE filter
 
 
 
@@ -49,7 +51,6 @@ original_language overview  poster_path     revenue
 runtime       votes   imdb_rating     year  
 genre 
 */
-
 
 console.log('Before Reading Data')
 
@@ -72,7 +73,8 @@ d3.csv("data/final_data.csv",
         //dataset is the full dataset -- maintain a copy of this at all times
         dataset = movies;
 
-        //max of different variables for sliders
+
+//max of different variables for sliders
 //        maxYear = d3.max(dataset.map(function(d) { return d.year; }));
 //        maxRuntime = d3.max(dataset.map(function(d) { return d['runtime']; }));
 //        maxRevenue = d3.max(dataset.map(function(d) { return d['revenue']; }));
@@ -107,7 +109,6 @@ d3.csv("data/final_data.csv",
 
         for(i=0;i<genres.length;i++){
             genresSelected[genres[i]] = true;
-
         }
 
         console.log("GENRE SELECTED",genresSelected);
@@ -115,6 +116,7 @@ d3.csv("data/final_data.csv",
         //all the data is now loaded, so draw the initial vis
         //console.log('Drawing Initial Visualizations')
 
+        summarizeGraphsInfo(dataset);
         drawGenreFilter(dataset);
         drawAllVis(dataset);
 
@@ -516,6 +518,41 @@ function drawTimelineVis(dataset) {
 
 }
 
+/*
+        CODE TO DRAW DYNAMIC FILTER COMPONENTS
+        Genre Multi-select Filter and  Text Information Section
+*/
+
+var countText;
+var myRatingText;
+var imdbRatingText;
+
+//Update Information section above the Filters
+function summarizeGraphsInfo(dataset){
+        if(typeof dataset =='undefined' || dataset ==[])
+        {   countRecords = 999
+            avgMyRating = 0
+            avgImdbRating = 0
+        }
+        else
+        {
+            countRecords = dataset.length;
+            avgMyRating = d3.mean(dataset.map(function(d) { return d['my_rating']; }));
+            avgImdbRating = d3.mean(dataset.map(function(d) { return d['imdb_rating']; }));
+            avgMyRating = +avgMyRating.toFixed(2); //Round to 2 decimals
+            avgImdbRating = +avgImdbRating.toFixed(2); //Round to 2 decimals
+        }
+        if(typeof countText == 'undefined')
+        {
+            countText = d3.select('#count-info');
+            myRatingText = d3.select('#avg-rating-info');
+            imdbRatingText = d3.select('#imdb-rating-info');
+        }
+
+        countText.html(countRecords + "<br> movies on display!");            
+}
+
+// GENRE colorful Multi-Select filter
 function drawGenreFilter(dataset){
 
     var color = d3.scaleOrdinal(d3.schemeCategory20).domain(genres);
@@ -527,7 +564,7 @@ function drawGenreFilter(dataset){
 
     var legend = legendSvg.selectAll(".legend")
                             .data(color.domain())
-                            .enter().append("g")
+                            .enter().append("g")    //ENTER
                             .attr("class", function(d) { 
                              return  "sqbar " + "color-" + color(d).substring(1) + " legend"; })
                             .attr("transform", function(d, i) {
@@ -560,8 +597,6 @@ function drawGenreFilter(dataset){
                         genresSelected[d] = !genresSelected[d] ;
                         var opacity  = document.getElementsByClassName(y)[0].style.opacity;
                         console.log ("Old opacity =" + opacity);
-
-
                       
                         if (opacity === "1") {
                             console.log("Reducing opacity");
@@ -575,21 +610,17 @@ function drawGenreFilter(dataset){
        
                         opacity  = document.getElementsByClassName(y)[0].style.opacity;
                         console.log ("New opacity =" + opacity);
-                        filterColumn("genresSelected",genresSelected);
+                        filterColumn("genresSelected",genresSelected);                        
 
-                        
                 }
                 ));
-
-
-
 }
 
 
 
 /*
-     CODE FOR FILTERS 
-     Functions to redraw graphs on filter selections 
+     UPDATE FILTER SELECTIONS  ON UI EVENTS
+     Functions to help redraw graphs on filter selections 
 */
 
 //Store Current Filter Selections

@@ -17,7 +17,7 @@
 * (DESCOPED) Make Slider Extent Dynamic
 * ~~Add color-based checkbox
 * **Add Tooltips on Hover to Filter Sections**
-
+* Alphabetize the Genre Filter
 
 ## Charts section
 * DESCOPED : Add Jitter (Rating Chart)
