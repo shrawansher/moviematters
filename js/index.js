@@ -17,11 +17,13 @@ var h = height - margin.top - margin.bottom;
 */
 var dataset;
 
-var maxYear;
-var maxRating;
-var maxRuntime;
-var maxImdbRating;
-var maxReveue;
+var avgImdbRating;
+var avgMyRating;
+
+var yearExtent;
+var runtimeExtent;
+var revenueExtent;
+
 var countRecords;
 
 var genres;
@@ -60,7 +62,7 @@ d3.csv("data/final_data.csv",
             d.id = +d.id;
             d.budget = +d.budget;
             d.revenue = +d.revenue;
-            d.runtime = +d.budget;
+            d.runtime = +d.runtime;
             d.votes = +d.votes;
             d.imdb_rating = +d.imdb_rating;
             d.year = +d.year;
@@ -70,21 +72,35 @@ d3.csv("data/final_data.csv",
         dataset = movies;
 
         //max of different variables for sliders
-        maxYear = d3.max(dataset.map(function(d) { return d.year; }));
-        maxRating = d3.max(dataset.map(function(d) { return d['my_rating']; }));
-        maxRuntime = d3.max(dataset.map(function(d) { return d['runtime']; }));
-        maxImdbRating = d3.max(dataset.map(function(d) { return d['imdb_rating']; }));
-        maxReveue = d3.max(dataset.map(function(d) { return d['revenue']; }));
+//        maxYear = d3.max(dataset.map(function(d) { return d.year; }));
+//        maxRuntime = d3.max(dataset.map(function(d) { return d['runtime']; }));
+//        maxRevenue = d3.max(dataset.map(function(d) { return d['revenue']; }));
+
         countRecords = dataset.length;
         genres = [...new Set(dataset.map(function(d){return d.genre;}))];
 
+        avgMyRating = d3.mean(dataset.map(function(d) { return d['my_rating']; }));
+        avgImdbRating = d3.mean(dataset.map(function(d) { return d['imdb_rating']; }));
+
+        avgMyRating = +avgMyRating.toFixed(2); //Round to 2 decimals
+        avgImdbRating = +avgImdbRating.toFixed(2); //Round to 2 decimals
+
+        yearExtent = d3.max(dataset.map(function(d) { return d.year; }));
+        runtimeExtent = d3.extent(dataset.map(function(d) { return d['runtime']; }));
+        revenueExtent = d3.extent(dataset.map(function(d) {return d['revenue']; }));
+
         console.log('Details of Dataset');
         console.log('# Records: ', dataset.length);
-        console.log('Max Year : ', maxYear);
-        console.log('Max Rating : ', maxRating);
-        console.log('Max IMDB Rating : ', maxImdbRating);
-        console.log('Max Runtime : ', maxRuntime);
-        console.log('Max Revenue : ', maxReveue);
+//        console.log('Max Year : ', maxYear);
+//        console.log('Max Runtime : ', maxRuntime);
+//        console.log('Max Revenue : ', maxRevenue);
+
+        console.log('Avg My Rating : ', avgMyRating);
+        console.log('Avg IMDB Rating : ', avgImdbRating);
+
+        console.log('Extent Year : ', runtimeExtent);
+        console.log('Extent Runtime : ', yearExtent);
+        console.log('Extent Revenue : ', revenueExtent);
 
         console.log("Genre List",genres);
 
@@ -128,7 +144,6 @@ var tooltip = d3.select("body").append("div")
 var formatCount = d3.format(",.0f");
 
 // For Multi Select
-
 
 //SCALES For Timeline Div
 
@@ -275,6 +290,20 @@ function drawRatingYearVis(dataset) {
     var x = function(d) { return rating_xScale(d[x_col]); }
     var y = function(d) { return rating_yScale(d[y_col]); }
 
+    // var jitterVal= 8;
+
+    // var getYPosition = function(d, i) {
+    //     var position = y(d);
+
+    //     if (true) 
+    //     {
+    //         return i%2 === 0 ?
+    //             position + Math.random()*jitterVal
+    //           : position - Math.random()*jitterVal
+    //     } 
+    //     else { return position; }
+    // }
+
     //Create xAxis, yAxis d3 axes with ticks (Dynamically)
     //axes= createD3Axes(ratingchart, rating_xScale, rating_yScale, 10, 10);
     //rating_x_axis = axes[0];
@@ -298,6 +327,8 @@ function drawRatingYearVis(dataset) {
     var circle = ratingchart.selectAll(".rating-circle")
         .data(dataset, key);
 
+    var t = d3.transition()
+      .duration(750);
 
     //console.log('Update')
     circle
@@ -320,31 +351,49 @@ function drawRatingYearVis(dataset) {
         });
 
     //console.log('Exit')
-    circle.exit().remove();
+    circle.exit()
+        .attr("class", "rating-circle exit")
+        .transition(t)
+          .style("fill-opacity", 1e-6)  //exit transition
+          .remove();
 
     //console.log('Enter')
     circle.enter().append("circle")
+        .attr("class", "rating-circle enter")
         .attr("cx", x)
         .attr("cy", y)
         .attr("r", 4)
-        .attr("class", "rating-circle")
         .style("stroke", "black")
-        //.style("fill", function(d) { return col(d.type); })
-        .style("opacity", 0.2)
+        .style("opacity", 0.5)
         .on("mouseover", function(d) {
+            d3.select(this)
+            .transition()
+            .duration(500)
+            .style("fill-opacity", .35)
+            .attr("r", 10)
+
             tooltip.transition()
                 .duration(100)
                 .style("opacity", .9);
             tooltip.html(tooltipText(d))
-                .style("left", (d3.event.pageX + 5) + "px")
+                .style("left", (d3.event.pageX + 10) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
         })
         .on("mouseout", function(d) {
             tooltip.transition()
-                .duration(500)
+                .duration(300)
                 .style("opacity", 0);
-        });
 
+            d3.select(this)
+            .transition()
+            .duration(100)
+            .style("fill-opacity", 1)
+            .attr("r", 4)
+        })
+        .style("fill-opacity", 1e-6)    //enter transition
+        .transition(t)
+        .style("fill-opacity", 0.2)
+        
 } //End Draw Vis
 
 /* ---------TIMELINE VIS--------
@@ -550,15 +599,15 @@ var subset_fn = function(d) {
     if( res!=false && typeof(filters.my_rating) != 'undefined')
     {    res = d.my_rating >= filters.my_rating[0] && d.my_rating <= filters.my_rating[1]; }
 
-    if( res!=false && typeof(filters.imdb_rating) != 'undefined')
-    {    res = d.imdb_rating >= filters.imdb_rating[0] && d.imdb_rating <= filters.imdb_rating[1]; }
+    if( res!=false && typeof(filters.runtime) != 'undefined')
+    {    res = d.runtime >= filters.runtime[0] && d.runtime <= filters.runtime[1]; }
 
     if( res!=false && typeof(filters.ratingdifftype) != 'undefined' && filters.ratingdifftype!="all")
     {     if(filters.ratingdifftype == "underrated")
                 res = (d.my_rating - d.imdb_rating >= 1.969); //95th percentile for significance 
           else res = (d.imdb_rating - d.my_rating >= 1.969); //95th percentile for significance 
     }
-    
+
     return res;
 }
 
@@ -579,9 +628,9 @@ function filterColumn(column, value){
         UI CALLBACKS : RANGE SLIDERS, CHECKBOXES, DROPDOWNS
 */
 
-// Range Slider for YEAR
+// Range Slider for YEAR (Data based Range)
 $(function() {
-    console.log("Inside Slider Handler");
+    console.log("Inside Year Slider Handler");
 
     $("#yearslider").slider({
         range: true,
@@ -589,7 +638,7 @@ $(function() {
         max: 2017,
         values: [1939, 2017],
         slide: function(event, ui) {
-            $("#yeartext").val(ui.values[0] + " to " + ui.values[1]);
+            $("#yeartext").val(ui.values[0] + " - " + ui.values[1]);
             filterColumn( "year", ui.values);
         } //end slide function
     }); //end slider
@@ -598,24 +647,42 @@ $(function() {
 }); //end function
 
 
-/*
+// Range Slider for MY RATING (Hard-coded 0-10 Range only)
+$(function() {
+    console.log("Inside My Rating Slider Handler");
 
-function filterType(mtype) {
-    console.log("Passed Value to DropDown:", mtype);
-    var res = patt.test(mtype); //boolean
-    console.log("Is all selected ?", res);
+    $("#myratingslider").slider({
+        range: true,
+        min: 0,
+        max: 10,
+        values: [0, 10],
+        slide: function(event, ui) {
+            $("#myratingtext").val(ui.values[0] + " - " + ui.values[1]);
+            filterColumn( "my_rating", ui.values);
+        } //end slide function
+    }); //end slider
 
-    typeSelected = mtype;
+    $("#myratingtext").val($("#myratingslider").slider("values", 0) + " - " + $("#myratingslider").slider("values", 1));
+}); //end function
 
-    if (res == true) //All selected
-    {
-        drawVis(dataset); //reset to all images
-    } else {
-        var filteredDataset = dataset.filter(function(d) { return d["type"] == mtype; });
-        drawVis(filteredDataset);
-    }
 
-} //End Filter Type
-*/
+// Range Slider for RUNTIME (Data-based Range)
+$(function() {
+    console.log("Inside Runtime Slider Handler");
+
+    $("#runtimeslider").slider({
+        range: true,
+        min: 75,
+        max: 238,
+        values: [75, 238],
+        slide: function(event, ui) {
+            $("#runtimetext").val(ui.values[0] + " to " + ui.values[1]);
+            filterColumn( "runtime", ui.values);
+        } //end slide function
+    }); //end slider
+
+    $("#runtimetext").val($("#runtimeslider").slider("values", 0) + " - " + $("#runtimeslider").slider("values", 1));
+}); //end function
+
 
 console.log('End of JS File');
