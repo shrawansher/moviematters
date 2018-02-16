@@ -580,7 +580,7 @@ var subset_fn = function(d) {
                 res = (d.my_rating - d.imdb_rating >= 1.969); //95th percentile for significance 
           else res = (d.imdb_rating - d.my_rating >= 1.969); //95th percentile for significance 
     }
-    
+
     return res;
 }
 
@@ -603,8 +603,6 @@ function filterColumn(column, value){
         UI CALLBACKS : RANGE SLIDERS, CHECKBOXES, DROPDOWNS
 */
 
-
-
 // Range Slider for YEAR (Data based Range)
 $(function() {
     console.log("Inside Year Slider Handler");
@@ -615,7 +613,7 @@ $(function() {
         max: 2017,
         values: [1939, 2017],
         slide: function(event, ui) {
-            $("#yeartext").val(ui.values[0] + " to " + ui.values[1]);
+            $("#yeartext").val(ui.values[0] + " - " + ui.values[1]);
             filterColumn( "year", ui.values);
         } //end slide function
     }); //end slider
@@ -634,7 +632,7 @@ $(function() {
         max: 10,
         values: [0, 10],
         slide: function(event, ui) {
-            $("#myratingtext").val(ui.values[0] + " to " + ui.values[1]);
+            $("#myratingtext").val(ui.values[0] + " - " + ui.values[1]);
             filterColumn( "my_rating", ui.values);
         } //end slide function
     }); //end slider

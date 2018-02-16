@@ -2,7 +2,7 @@
 
 ## UI / Look & Feel
 * ~ Range Sliders CSS
-* DropDown CSS
+* (DESCOPED) DropDown CSS
 * ~~Revise Text on Left Content
 * ~~Layout (Fix Width of RightContent)
 * Add Icons
@@ -12,7 +12,7 @@
 * Add Text for showing No. of Movies Selected
 * ~~Add Slider (My Rating)
 * ~~Add Slider (Runtime)
-* Make Slider Extent Dynamic
+* (DESCOPED) Make Slider Extent Dynamic
 * Add color-based checkbox
 
 
