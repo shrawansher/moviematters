@@ -318,7 +318,6 @@ function drawRatingYearVis(dataset) {
     circle.exit()
         .attr("class", "rating-circle exit")
         .transition(t)
-          .attr("y", 60)
           .style("fill-opacity", 1e-6)  //exit transition
           .remove();
 
@@ -357,8 +356,7 @@ function drawRatingYearVis(dataset) {
         })
         .style("fill-opacity", 1e-6)    //enter transition
         .transition(t)
-          .attr("y", 0)
-          .style("fill-opacity", 0.2)
+        .style("fill-opacity", 0.2)
         
 
 } //End Draw Vis
