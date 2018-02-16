@@ -11,6 +11,7 @@
   <script src="http://d3js.org/d3.v4.min.js"></script>
   <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
   <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.3.0.min.js"></script>
 
 	<title>Movie Matters</title>
 </head>
@@ -35,10 +36,6 @@
           				    <div id="yearslider" class="slider-range"></div>
                       <br/>
 
-                    <!--Filter Section For 'GENRE' DropDown  -->
-
-
-
                     <!--Filter Section For 'MY RATING' Slider  -->
                       <label class= "choice-label" for="myratingtext">My Rating:</label>
                       <input type="text" class= "choice-value" id="myratingtext" readonly style="border:0; color:#f6931f; font-weight:bold;">
@@ -61,10 +58,15 @@
                         <option value="underrated">Underrated</option>
                         <option value="overrated">Overrated</option>
                     </select>
+                    <br/>
+
                     <script>
                         document.getElementById("underoverselectform").onchange =function(){filterColumn("ratingdifftype", this.value);}
                     </script>
-                </div> <!--End of Filters Div (Right Content-->
+                   
+                    <!--Filter Section For 'GENRE' DropDown  -->
+                    <svg id="genre-filter"></svg>
+               </div> <!--End of Filters Div (Right Content-->
                 
 
 
