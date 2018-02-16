@@ -17,11 +17,13 @@ var h = height - margin.top - margin.bottom;
 */
 var dataset;
 
-var maxYear;
-var maxRating;
-var maxRuntime;
-var maxImdbRating;
-var maxReveue;
+var avgImdbRating;
+var avgMyRating;
+
+var yearExtent;
+var runtimeExtent;
+var revenueExtent;
+
 var countRecords;
 
 /*
@@ -59,7 +61,7 @@ d3.csv("data/final_data.csv",
             d.id = +d.id;
             d.budget = +d.budget;
             d.revenue = +d.revenue;
-            d.runtime = +d.budget;
+            d.runtime = +d.runtime;
             d.votes = +d.votes;
             d.imdb_rating = +d.imdb_rating;
             d.year = +d.year;
@@ -69,20 +71,34 @@ d3.csv("data/final_data.csv",
         dataset = movies;
 
         //max of different variables for sliders
-        maxYear = d3.max(dataset.map(function(d) { return d.year; }));
-        maxRating = d3.max(dataset.map(function(d) { return d['my_rating']; }));
-        maxRuntime = d3.max(dataset.map(function(d) { return d['runtime']; }));
-        maxImdbRating = d3.max(dataset.map(function(d) { return d['imdb_rating']; }));
-        maxReveue = d3.max(dataset.map(function(d) { return d['revenue']; }));
+//        maxYear = d3.max(dataset.map(function(d) { return d.year; }));
+//        maxRuntime = d3.max(dataset.map(function(d) { return d['runtime']; }));
+//        maxRevenue = d3.max(dataset.map(function(d) { return d['revenue']; }));
+
         countRecords = dataset.length;
+
+        avgMyRating = d3.mean(dataset.map(function(d) { return d['my_rating']; }));
+        avgImdbRating = d3.mean(dataset.map(function(d) { return d['imdb_rating']; }));
+
+        avgMyRating = +avgMyRating.toFixed(2); //Round to 2 decimals
+        avgImdbRating = +avgImdbRating.toFixed(2); //Round to 2 decimals
+
+        yearExtent = d3.max(dataset.map(function(d) { return d.year; }));
+        runtimeExtent = d3.extent(dataset.map(function(d) { return d['runtime']; }));
+        revenueExtent = d3.extent(dataset.map(function(d) {return d['revenue']; }));
 
         console.log('Details of Dataset');
         console.log('# Records: ', dataset.length);
-        console.log('Max Year : ', maxYear);
-        console.log('Max Rating : ', maxRating);
-        console.log('Max IMDB Rating : ', maxImdbRating);
-        console.log('Max Runtime : ', maxRuntime);
-        console.log('Max Revenue : ', maxReveue);
+//        console.log('Max Year : ', maxYear);
+//        console.log('Max Runtime : ', maxRuntime);
+//        console.log('Max Revenue : ', maxRevenue);
+
+        console.log('Avg My Rating : ', avgMyRating);
+        console.log('Avg IMDB Rating : ', avgImdbRating);
+
+        console.log('Extent Year : ', runtimeExtent);
+        console.log('Extent Runtime : ', yearExtent);
+        console.log('Extent Revenue : ', revenueExtent);
 
         //all the data is now loaded, so draw the initial vis
         //console.log('Drawing Initial Visualizations')
@@ -371,7 +387,6 @@ function drawRatingYearVis(dataset) {
         .transition(t)
         .style("fill-opacity", 0.2)
         
-
 } //End Draw Vis
 
 /* ---------TIMELINE VIS--------
@@ -557,8 +572,8 @@ var subset_fn = function(d) {
     if( res!=false && typeof(filters.my_rating) != 'undefined')
     {    res = d.my_rating >= filters.my_rating[0] && d.my_rating <= filters.my_rating[1]; }
 
-    if( res!=false && typeof(filters.imdb_rating) != 'undefined')
-    {    res = d.imdb_rating >= filters.imdb_rating[0] && d.imdb_rating <= filters.imdb_rating[1]; }
+    if( res!=false && typeof(filters.runtime) != 'undefined')
+    {    res = d.runtime >= filters.runtime[0] && d.runtime <= filters.runtime[1]; }
 
     if( res!=false && typeof(filters.ratingdifftype) != 'undefined' && filters.ratingdifftype!="all")
     {     if(filters.ratingdifftype == "underrated")
@@ -590,9 +605,9 @@ function filterColumn(column, value){
 
 
 
-// Range Slider for YEAR
+// Range Slider for YEAR (Data based Range)
 $(function() {
-    console.log("Inside Slider Handler");
+    console.log("Inside Year Slider Handler");
 
     $("#yearslider").slider({
         range: true,
@@ -606,6 +621,44 @@ $(function() {
     }); //end slider
 
     $("#yeartext").val($("#yearslider").slider("values", 0) + " - " + $("#yearslider").slider("values", 1));
+}); //end function
+
+
+// Range Slider for MY RATING (Hard-coded 0-10 Range only)
+$(function() {
+    console.log("Inside My Rating Slider Handler");
+
+    $("#myratingslider").slider({
+        range: true,
+        min: 0,
+        max: 10,
+        values: [0, 10],
+        slide: function(event, ui) {
+            $("#myratingtext").val(ui.values[0] + " to " + ui.values[1]);
+            filterColumn( "my_rating", ui.values);
+        } //end slide function
+    }); //end slider
+
+    $("#myratingtext").val($("#myratingslider").slider("values", 0) + " - " + $("#myratingslider").slider("values", 1));
+}); //end function
+
+
+// Range Slider for RUNTIME (Data-based Range)
+$(function() {
+    console.log("Inside Runtime Slider Handler");
+
+    $("#runtimeslider").slider({
+        range: true,
+        min: 75,
+        max: 238,
+        values: [75, 238],
+        slide: function(event, ui) {
+            $("#runtimetext").val(ui.values[0] + " to " + ui.values[1]);
+            filterColumn( "runtime", ui.values);
+        } //end slide function
+    }); //end slider
+
+    $("#runtimetext").val($("#runtimeslider").slider("values", 0) + " - " + $("#runtimeslider").slider("values", 1));
 }); //end function
 
 

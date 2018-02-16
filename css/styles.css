@@ -76,7 +76,7 @@ html, body, .Container
 
 .timebars:hover{
 
-    fill: black;
+    fill: #d91420; /* red */
 }
 
 .exit {
@@ -125,6 +125,10 @@ html, body, .Container
     	font-size: 30px;
 }
 
+.choice-label, .choice-value{
+    font-size: 16px;
+    font-family: 'Raleway', sans-serif;    
+}
 
 .helptext{
     font-size: 8px;
