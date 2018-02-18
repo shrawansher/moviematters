@@ -48,21 +48,24 @@ html, body, .Container
 
 .LeftContent
 {
-    padding: 20px;
-/*    overflow: auto;
-*/    width: 1000px;
+    padding: 10px;
+    overflow: auto;
+    width: auto;
+
 }
 
 .view-summary
 {
     font-family: 'Roboto', sans-serif;
+    text-align: center;
 }
 
 .RightContent
 {
     float: right;
     width:  200px;
-    height: auto;
+    height: 200px;
+
 
     margin-left: 20px;
     margin-right: 20px;

@@ -27,6 +27,9 @@ var revenueExtent;
 var countRecords;
 
 var genres;
+var genresSelected={};
+
+var maxCount;
 /*
     GLOBAL FILTER-RELATED VARIABLES
     To keep track of patterns and current selections on filters
@@ -78,6 +81,10 @@ d3.csv("data/final_data.csv",
 
         countRecords = dataset.length;
         genres = [...new Set(dataset.map(function(d){return d.genre;}))];
+        console.log("Genres",genres);
+        genres.sort();
+        console.log("Sorted Genres",genres);
+
 
         avgMyRating = d3.mean(dataset.map(function(d) { return d['my_rating']; }));
         avgImdbRating = d3.mean(dataset.map(function(d) { return d['imdb_rating']; }));
@@ -103,6 +110,13 @@ d3.csv("data/final_data.csv",
         console.log('Extent Revenue : ', revenueExtent);
 
         console.log("Genre List",genres);
+
+        for(i=0;i<genres.length;i++){
+            genresSelected[genres[i]] = true;
+
+        }
+
+        console.log("GENRE SELECTED",genresSelected);
 
         //all the data is now loaded, so draw the initial vis
         //console.log('Drawing Initial Visualizations')
@@ -136,6 +150,7 @@ none of these depend on the data being loaded so fine to define here
 
 // TOOLTIPS ! 
 //Currently only 1 tooltip
+console.log("Created Tooltip");
 var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
@@ -161,36 +176,62 @@ function createSVGChart(selectString) {
         .attr("height", h + margin.top + margin.bottom + 15)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    console.log("SVG Width",w);
 
     return chart;
 }
 
 function createAxesDOM(chart, idLabel, xLabel, yLabel) {
-    g1 = chart.append("g")
-        .attr("class", "x axis " + idLabel) //Keep space between x axis and label
-        .attr("transform", "translate(0," + h + ")");
-
-    g2 = chart.append("g")
-        .attr("class", "y axis " + idLabel); //Keep space between x axis and label
-
-    //Label the axes
-    g1.append("text")
-        .attr("x", w)
-        .attr("y", -6)
+    // g1 = chart.append("g")
+    //     .attr("class", "x axis " + idLabel) //Keep space between x axis and label
+    //     .attr("transform", "translate(0," + h + ")")
+    //     .style("text-anchor", "end")
+    //     .attr("dx", "-.8em")
+    //     .attr("dy", ".15em");
+   chart.append("g")
+      .attr("class", "x axis " + idLabel)
+      .attr("transform", "translate(0," + h + ")")
+      .selectAll("text")
         .style("text-anchor", "end")
-        .style("z-index", "3")
-        .text(xLabel);
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", function(d){
+          return "rotate(-65)";
+        })
+    // text label for the x axis
+      chart.append("text")             
+          .attr("transform",
+                "translate(" + (w/2) + " ," + 
+                               (h + 40) + ")")
+          .style("text-anchor", "middle")
+          .text(xLabel);
 
-
-    g2.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .style("z-index", "3")
-        .text(yLabel);
+    chart.append("g")
+        .attr("class", "y axis " + idLabel) //Keep space between x axis and label
+     chart.append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 0 - margin.left)
+          .attr("x",0 - (height / 2))
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .text(yLabel);
 }
+    //Label the axes
+    // g1.append("text")
+    //     .attr("x", w)
+    //     .attr("y", -6)
+    //     .style("text-anchor", "end")
+    //     .style("z-index", "3")
+        // .text(xLabel);
+  // g1.append("text")             
+  //     .attr("transform",
+  //           "translate(" + (w/2) + " ," + 
+  //                          0+ ")")
+  //     .style("text-anchor", "middle")
+  //     .text(xLabel);
 
+
+        
 
 //SCALES for Ratings Div
 function createNumericScale(dataset, col, pixelRange) {
@@ -209,18 +250,35 @@ function createNumericScale(dataset, col, pixelRange) {
     return scale; //scale function
 }
 
-// function createD3Axes(chart, xScale, yScale, xTicks, yTicks) {
-//     var xAxis = d3.axisBottom().scale(xScale);
-//     var yAxis = d3.axisLeft().scale(yScale);
-//     return [xAxis, yAxis];
-// }
+//SCALES for Ordinal Div
+function createOrdinalScale(dataset, col, pixelRange) {
+    //To create Ordinal Scales for Quantitative Columns 
+    //(E.g. year) 
 
+    // var colValue = function(d) { return d[col]; }
 
+    console.log("Band 1939", col);
+    var colValue = function(d) { return d[col]; }
+
+    var extent = d3.extent(dataset, colValue);
+    console.log("Extent",extent);
+    // var keys = [ ...new Set(dataset.map(function(d){return d[col];}))];
+    // keys.sort();
+    var keys = d3.range(extent[0],extent[1]+1,1);
+    console.log("Keys",keys);
+    var scale = d3.scaleBand()
+        .domain(keys) //Prevent data points from touching axes
+        .range(pixelRange)
+        .padding(0.1)
+
+    console.log("Band 1939", scale(1939));
+
+    return scale; //scale function
+}
 /*
     DRAW VISUALIZATIONS
     Function Definitions to draw the graphs and charts on screen
 */
-
 
 function drawAllVis(dataset) {
     //Calls all individual drawVis functions for each chart/graph
@@ -241,9 +299,17 @@ function createTimelineAxesDOM(chart,idLabel){
         .attr("transform", function(d){
           return "rotate(-65)";
         });
+    // text label for the x axis
+  chart.append("text")             
+      .attr("transform",
+            "translate(" + (w/2) + " ," + 
+                           (h + 40) + ")")
+      .style("text-anchor", "middle")
+      .text("Year");
 
   chart.append("g")
         .attr("class", "y axis " + idLabel);
+  console.log("CHarty", chart);
 }
 
 
@@ -261,7 +327,6 @@ function drawRatingYearVis(dataset) {
         return "<strong>" + d.title + "</strong> (" + d.year + ") <br/> My Rating: " +
             d.my_rating + "<br/> IMDB Rating: " + d.imdb_rating
     };
-
 
     idLabel = "rating-year" //label to identify class of axes for this chart
 
@@ -353,7 +418,7 @@ function drawRatingYearVis(dataset) {
         })
         .on("mouseout", function(d) {
             tooltip.transition()
-                .duration(500)
+                .duration(300)
                 .style("opacity", 0);
         });
 
@@ -553,16 +618,20 @@ function drawGraph(fullData){
 var timelineSvg;
 
 function drawTimelineVis(dataset) {
-  // Year Ranges
+
+    var x_col = "year";
+
+    // ID Label for the axes
+    var idLabel = "time-bar";
+
+    // Year Ranges
     var maxYear = d3.max(dataset.map(function(d) { return d.year; }));
     var minYear = d3.min(dataset.map(function(d) { return d.year; }));
 
     console.log("Min Year", minYear);
     console.log("Max Year", maxYear);
 
-    // ID Label for the axes
-    var idLabel = "timeline";
-
+    
     //Set the Tooltip Text
     var tooltipText = function(d) {
         return "<strong> Year: " +
@@ -572,26 +641,8 @@ function drawTimelineVis(dataset) {
     console.log('Drawing Timeline Histogram Plot')
 
     // X-Scale Function
-
-    var x_col = "year";
-
     var x_year = createNumericScale(dataset, x_col, [0, w]); // Data-dependent year scale
-    // var x_year = d3.scaleLinear()
-    //     .domain([minYear, maxYear])
-    //     .range([0, w]);
-
-
-    // console.log("Bar width", barWidth);
     
-    //Create SVG Chart And Axes Group DOM if needed (Runs only once during initial load)
-    if (typeof timelineSvg == 'undefined') {
-         timelineSvg = createSVGChart("#time-bars");
-         console.log("Created Timeline Chart: ", timelineSvg);
-
-         createTimelineAxesDOM(timelineSvg, idLabel);
-         console.log("Created Timeline Chart Axes DOM");
-    }
-
     //SVG and DOM tags for Ratings Div
 
     // Create the Year Array
@@ -605,58 +656,150 @@ function drawTimelineVis(dataset) {
         .thresholds(thresholds)
         (yearMap);
 
+    //Create SVG Chart And Axes Group DOM if needed (Runs only once during initial load)
+    if (typeof timelineSvg == 'undefined') {
+         timelineSvg = createSVGChart("#time-bars");
+         console.log("Created Timeline Chart: ", timelineSvg);
+
+         createTimelineAxesDOM(timelineSvg, idLabel);
+         console.log("Created Timeline Chart Axes DOM");
+
+         maxCount = d3.max(timelineBins.map(function(d){ return d.length; }));
+         console.log("Max count",maxCount);
+    }
+
     // Yscale function
     var yTimeline = d3.scaleLinear()
-        .domain([0, d3.max(timelineBins, function(d) { return d.length; })])
+        // .domain([0, d3.max(timelineBins, function(d) { return d.length; })])
+        .domain([0,maxCount])
         .range([h, 0]);
 
     console.log("bins: ", timelineBins);
     console.log(x_year(1939));
     console.log(x_year(2017));
     //Map the timeline chart group to all the data points
-    //var barWidth = w/thresholds;
+    var barWidth = x_year(timelineBins[0].x0)/timelineBins.length ;
+    console.log("BAR WIDTh", barWidth);
 
-    var bar = timelineSvg.selectAll(".timebars")
-        .remove().exit()
-        .data(timelineBins);
+    var bar = timelineSvg.selectAll(".timeline")
+                    .data(timelineBins,function(d) { return d.x0;});
+     
+        
+    // bar.enter().append("g")
+    //                 .attr("class","timeline");
+    
+    // bar.remove().exit();
+        
 
     console.log("bars" ,bar);
 
-    bar.enter().append("rect")
-        .attr("class","timebars")
-        .attr("x", function(d){ return x_year(d.x0)})
-        .attr("y",function(d){return yTimeline(d.length)})
+    bar.exit()
+        .transition()
+        // .delay(1000)
+        .ease(d3.easeExp)
+        .duration(50)
+        .remove();
+        console.log("Bar after exit",bar);
+
+    bar.on("mouseover", function(d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(tooltipText(d))
+                        .style("left", (d3.event.pageX + 5) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");
+                    })
+                    .on("mouseout", function(d) {
+                        tooltip.transition()
+                            .duration(500)
+                            .style("opacity", 0);
+                    })
+
+    bar.transition()
+            .duration(300)
+            .ease(d3.easeCubic)
+            .attr("height", function(d) { return h - yTimeline(d.length); })
+            .attr("x", function(d){ return x_year(d.x0);})
+            .attr("y",function(d){return yTimeline(d.length);})
+            // .attr("width",barWidth+1);
+            .attr("width", x_year(timelineBins[0].x1) - x_year(timelineBins[0].x0) - 1)
+          
+            
+                         
+
+
+    bar.enter()
+        .append("rect")
+        .attr("class","timeline")
+        .on("mouseover", function(d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(tooltipText(d))
+                        .style("left", (d3.event.pageX + 5) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");
+                    })
+        .on("mouseout", function(d) {
+                        tooltip.transition()
+                            .duration(500)
+                            .style("opacity", 0)
+                    })
+        .transition()
+            .duration(300)
+            .ease(d3.easeExp)
+        .attr("x", function(d){ 
+            console.log(x_year(d.x0));
+            return x_year(d.x0)})
+        .attr("y",function(d){return yTimeline(d.length);})
+        // .attr("width",barWidth)
         .attr("width", x_year(timelineBins[0].x1) - x_year(timelineBins[0].x0) - 1)
         //.attr("width", barWidth)
         .attr("height", function(d) { return h - yTimeline(d.length); })
-        .attr("fill", "steelblue")
-        .on("mouseover", function(d) {
-            tooltip.transition()
-                .duration(200)
-                .style("opacity", .9);
-            tooltip.html(tooltipText(d))
-                .style("left", (d3.event.pageX + 5) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
+        .attr("fill", "steelblue");
 
-        })
-        .on("mouseout", function(d) {
-            tooltip.transition()
-                .duration(500)
-                .style("opacity", 0);
-        });
+
+
+        // .transition()
+        //     .duration(300)
+        //     .ease(d3.easeExp);
+     
+     // bar.transition()
+     //    .duration(300)
+     //    .ease(d3.easeExp);
+
+        // .on("mouseover", function(d) {
+        //     tooltip.transition()
+        //         .duration(200)
+        //         .style("opacity", .9);
+        //     tooltip.html(tooltipText(d))
+        //         .style("left", (d3.event.pageX + 5) + "px")
+        //         .style("top", (d3.event.pageY - 28) + "px");
+
+        // })
+        // .on("mouseout", function(d) {
+        //     tooltip.transition()
+        //         .duration(500)
+        //         .style("opacity", 0);
+        // });
 
     console.log("TimeLine SVG", timelineSvg.select(".x.axis."+idLabel));
     
     // timelineSvg.append("g")
     //     .attr("class", "axis axis--x")
     //     .attr("transform", "translate(0," + h + ")")
+
     timelineSvg.select(".x.axis."+idLabel)
                   .call(d3.axisBottom(x_year)
                     .tickFormat(d3.format("d")));
 
-        // .attr("transform", "translate("+ w  + ", 0 )")
+    // .attr("transform", "translate("+ w  + ", 0 )")
+
+
+
     timelineSvg.select(".y.axis."+idLabel)
               .call(d3.axisLeft(yTimeline));
+        console.log("Creating y axis");
+
 
 }
 
@@ -694,16 +837,18 @@ function drawGenreFilter(dataset){
         .attr("x", 26)
         .attr("dy", ".9em")
         .text(function(d) {
-            console.log("DAssss", d);
             return d;
         });
 
 
     legend.on("click", (function(d){
                         var y = "sqbar color-" + color(d).substring(1);
-                        console.log("Class =" + y);
+                        console.log("Class =" ,d);
+                        genresSelected[d] = !genresSelected[d] ;
                         var opacity  = document.getElementsByClassName(y)[0].style.opacity;
                         console.log ("Old opacity =" + opacity);
+
+
                       
                         if (opacity === "1") {
                             console.log("Reducing opacity");
@@ -717,11 +862,12 @@ function drawGenreFilter(dataset){
        
                         opacity  = document.getElementsByClassName(y)[0].style.opacity;
                         console.log ("New opacity =" + opacity);
+                        filterColumn("genresSelected",genresSelected);
+
                         
                 }
                 ));
-    console.log("Legend",legend);
-    console.log("bye");
+
 }
 
 
@@ -732,7 +878,7 @@ function drawGenreFilter(dataset){
 */
 
 //Store Current Filter Selections
-var filters = {}
+var filters = {};
 
 
 var subset_fn = function(d) { 
@@ -749,6 +895,10 @@ var subset_fn = function(d) {
 
     if( res!=false && typeof(filters.runtime) != 'undefined')
     {    res = d.runtime >= filters.runtime[0] && d.runtime <= filters.runtime[1]; }
+    
+    if( res!= false && typeof(filters.genresSelected) != 'undefined'){
+        res = genresSelected[d.genre];
+    }
 
     if( res!=false && typeof(filters.ratingdifftype) != 'undefined' && filters.ratingdifftype!="all")
     {     if(filters.ratingdifftype == "underrated")

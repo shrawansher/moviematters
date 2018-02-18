@@ -1,118 +1,97 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width">
-	<link rel="stylesheet" href="css/styles.css">
-<!-- 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans"> -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
-	<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
-  <script src="http://d3js.org/d3.v4.min.js"></script>
-  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-  <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
-  <script src="http://dimplejs.org/dist/dimple.v2.3.0.min.js"></script>
 
-	<title>Movie Matters</title>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="css/styles.css">
+    <!--    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans"> -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+    <script src="http://d3js.org/d3.v4.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+    <script src="http://dimplejs.org/dist/dimple.v2.3.0.min.js"></script>
+    <title>Movie Matters</title>
 </head>
 
 <body>
     <div class="Container">
-        <div class="Header">
+<!--         <div class="Header">
             <h1 id="title">Movie Matters</h1>
-            <p id="title-summary" >Explore 15 years of a cinephile's movie watching history!</p>
+            <p id="title-summary">Explore 15 years of a cinephile's movie watching history!</p>
             <hr>
-        </div> <!--End of Header-->
-
-
+        </div> -->
+        <!--End of Header-->
         <div class="Content">
             <div class="Wrapper">
-                
-                <div id ="filters-div" class="RightContent">
-                    <p>Filters go here</p>
-                    <!--Filter Section For 'YEAR' Slider  -->
-                      <label class= "choice-label" for="yeartext">Chosen Year Range:</label>
-          				    <input type="text" class= "choice-value" id="yeartext" readonly style="border:0; color:#f6931f; font-weight:bold;">
-          				    <div id="yearslider" class="slider-range"></div>
-                      <br/>
-
-                    <!--Filter Section For 'MY RATING' Slider  -->
-                      <label class= "choice-label" for="myratingtext">My Rating:</label>
-                      <input type="text" class= "choice-value" id="myratingtext" readonly style="border:0; color:#f6931f; font-weight:bold;">
-                      <div id="myratingslider" class="slider-range"></div>
-                      <br/>
-
-                    <!--Filter Section For 'RUNTIME' Slider  -->
-                      <label class= "choice-label" for="runtimetext">Runtime (in minutes):</label>
-                      <input type="text" class= "choice-value" id="runtimetext" readonly style="border:0; color:#f6931f; font-weight:bold;">
-                      <div id="runtimeslider" class="slider-range"></div>
-                      <br/>
-
-                    <!--Filter Section For 'UnderRated, OverRated' -->
-                    <label class= "choice-label" for="underoverText">Underrated or Overrated:</label> 
-                    <input type="text" class= "choice-value" id="underoverText" readonly style="border:0; color:#f6931f; font-weight:bold;">
+                <div id="filters-div" class="RightContent">
+<!--                     <p>Filters go here</p>
+ -->                    <!--Filter Section For 'YEAR' Slider  -->
+                    <label class="choice-label" for="yeartext">Chosen Year Range:</label>
+                    <input type="text" class="choice-value" id="yeartext" readonly style="border:0; color:#f6931f; font-weight:bold;">
+                    <div id="yearslider" class="slider-range"></div>
                     <br/>
-                    
-                    <select id="underoverselectform"> 
+                    <!--Filter Section For 'MY RATING' Slider  -->
+                    <label class="choice-label" for="myratingtext">My Rating:</label>
+                    <input type="text" class="choice-value" id="myratingtext" readonly style="border:0; color:#f6931f; font-weight:bold;">
+                    <div id="myratingslider" class="slider-range"></div>
+                    <br/>
+                    <!--Filter Section For 'RUNTIME' Slider  -->
+                    <label class="choice-label" for="runtimetext">Runtime (in minutes):</label>
+                    <input type="text" class="choice-value" id="runtimetext" readonly style="border:0; color:#f6931f; font-weight:bold;">
+                    <div id="runtimeslider" class="slider-range"></div>
+                    <br/>
+                    <!--Filter Section For 'UnderRated, OverRated' -->
+                    <label class="choice-label">Underrated or Overrated:</label>
+                        <select id="underoverselectform">
                         <option value="all">All Movies</option>
                         <option value="underrated">Underrated</option>
                         <option value="overrated">Overrated</option>
                     </select>
-                    <br/>
 
                     <script>
-                        document.getElementById("underoverselectform").onchange =function(){filterColumn("ratingdifftype", this.value);}
+                    document.getElementById("underoverselectform").onchange = function() { filterColumn("ratingdifftype", this.value); }
                     </script>
-                   
+                    <br><br>
                     <!--Filter Section For 'GENRE' DropDown  -->
+                    <label class="choice-label">Genre</label>
                     <svg id="genre-filter"></svg>
-               </div> <!--End of Filters Div (Right Content-->
-                
-
-
-
+                </div>
+                <!--End of Filters Div (Right Content-->
                 <div id="visualization-div" class="LeftContent">
-                 	<h3>Timeline View</h3>
-                 	<p class="view-summary">When were the movies I have watched released?</p>
-<!--                  	<p class="helptext" > Select filters to play around</p>
--->                	
-                	<div id="timeline-div" class="visualization">
-                		<svg id="time-bars" class="chart"></svg>
-					       </div>
-
-                	<hr>
-
-<!--                  	<h3>Genre View</h3>
-                 	<p class="view-summary">Which movie genres do I watch and like?</p>
-                 	<p class="helptext" > Select filters to play around</p>
-                	<div id="genre-div" class="visualization">
-                		<svg id="genre-bars" class="chart"></svg>
-					       </div>
-
-        					<hr>
- -->
-
-                 	<h3>Your Ratings View</h3>
-                 	<p class="view-summary">How do I rate my movies?</p>
-<!--                  	<p class="helptext" > Select filters to play around</p> -->                	
-                  <div id="ratings-div" class="visualization">
-
-<!--                     <div class='select-jitter-container'>
-                        <label>Jitter:</label>
-                        <input type='checkbox' id='jitterbug-perfume' />
+<!--                     <h3>Timeline View</h3>
+ -->                    <p class="view-summary">When were the movies I have watched released?</p>
+                    <!--                    <p class="helptext" > Select filters to play around</p>
+-->
+                    <div id="timeline-div" class="visualization">
+                        <svg id="time-bars" class="chart"></svg>
                     </div>
- -->
-                	  <svg id="rating-years" class="chart"></svg>
-					        </div>
-                </div> <!-- Visualization Div (Left Content) -->
-
+<!--                     <hr>
+                    <h3>Genre View</h3>
+                    <p class="view-summary">Which movie genres do I watch and like?</p>
+                    <p class="helptext"> Select filters to play around</p>
+                    <div id="genre-div" class="visualization">
+                        <svg id="genre-bars" class="chart"></svg>
+                    </div> -->
+                    <hr>
+<!--                     <h3>Your Ratings View</h3>
+ -->                    <p class="view-summary">How do I rate my movies?</p>
+                    <!--                    <p class="helptext" > Select filters to play around</p> -->
+                    <div id="ratings-div" class="visualization">
+                        <svg id="rating-years" class="chart"></svg>
+                    </div>
+                </div>
+                <!-- Visualization Div (Left Content) -->
                 <!-- SCRIPTS SECTION-->
                 <script src="js/index.js"></script>
-            </div> <!-- Wrapper (Left & Right Content, SCRIPT)-->
-        </div> <!-- Content (Wrapper) -->
-
-    </div><!-- container (Header and Content)-->	
-
-
+            </div>
+            <!-- Wrapper (Left & Right Content, SCRIPT)-->
+        </div>
+        <!-- Content (Wrapper) -->
+    </div>
+    <!-- container (Header and Content)-->
 </body>
+
 </html>
