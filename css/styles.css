@@ -4,12 +4,12 @@ html, body, .Container
     font-family: 'Raleway', sans-serif;
 }
 
-    .Container:before
-    {
+.Container:before
+{
         content: '';
         height: 100%;
         float: left;
-    }
+}
 
 .Header
 {
@@ -56,7 +56,6 @@ html, body, .Container
 
 .view-summary
 {
-    font-family: 'Roboto', sans-serif;
     text-align: center;
 }
 
@@ -78,14 +77,15 @@ html, body, .Container
 
 }
 
-.timebars:hover{
+.timeline:hover{ 
 
     fill: #d91420; /* red */
 }
 
-.exit {
-/*  fill: brown; */
+.dot:hover{
+    stroke: black;
 }
+
 
 .tooltip {
 	position: absolute;
@@ -137,12 +137,6 @@ html, body, .Container
 .helptext{
     font-size: 8px;
 }
-
-/*.slidercontainer {
-    align-content: center
-    float:center;
-    width: 90%;
-}*/
 
 .slider-range {
     -webkit-appearance: none;
