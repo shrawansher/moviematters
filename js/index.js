@@ -30,6 +30,8 @@ var genres;
 var genresSelected={};
 
 var maxCount;
+
+var timelineSvg;
 /*
     GLOBAL FILTER-RELATED VARIABLES
     To keep track of patterns and current selections on filters
@@ -157,18 +159,6 @@ var tooltip = d3.select("body").append("div")
 
 var formatCount = d3.format(",.0f");
 
-// For Multi Select
-
-//SCALES For Timeline Div
-
-//SVG and DOM tags for Timeline Div
-
-
-//SCALES for Genre Div
-
-//SVG and DOM tags for Genre Div
-
-
 //SVG and DOM tags for Ratings Div
 function createSVGChart(selectString) {
     var chart = d3.select(selectString) //select svg element by id, class
@@ -216,22 +206,6 @@ function createAxesDOM(chart, idLabel, xLabel, yLabel) {
           .style("text-anchor", "middle")
           .text(yLabel);
 }
-    //Label the axes
-    // g1.append("text")
-    //     .attr("x", w)
-    //     .attr("y", -6)
-    //     .style("text-anchor", "end")
-    //     .style("z-index", "3")
-        // .text(xLabel);
-  // g1.append("text")             
-  //     .attr("transform",
-  //           "translate(" + (w/2) + " ," + 
-  //                          0+ ")")
-  //     .style("text-anchor", "middle")
-  //     .text(xLabel);
-
-
-        
 
 //SCALES for Ratings Div
 function createNumericScale(dataset, col, pixelRange) {
@@ -255,23 +229,14 @@ function createOrdinalScale(dataset, col, pixelRange) {
     //To create Ordinal Scales for Quantitative Columns 
     //(E.g. year) 
 
-    // var colValue = function(d) { return d[col]; }
-
-    console.log("Band 1939", col);
     var colValue = function(d) { return d[col]; }
-
     var extent = d3.extent(dataset, colValue);
-    console.log("Extent",extent);
-    // var keys = [ ...new Set(dataset.map(function(d){return d[col];}))];
-    // keys.sort();
     var keys = d3.range(extent[0],extent[1]+1,1);
-    console.log("Keys",keys);
+
     var scale = d3.scaleBand()
         .domain(keys) //Prevent data points from touching axes
         .range(pixelRange)
         .padding(0.1)
-
-    console.log("Band 1939", scale(1939));
 
     return scale; //scale function
 }
@@ -311,7 +276,6 @@ function createTimelineAxesDOM(chart,idLabel){
         .attr("class", "y axis " + idLabel);
   console.log("CHarty", chart);
 }
-
 
 
 
@@ -468,9 +432,6 @@ function drawRatingYearVis(dataset) {
 } //End Draw Vis
 
 
-
-
-
 function drawGraph(fullData){  
 
     console.log('Drawing Scatter Plot: Rating vs Year')
@@ -615,7 +576,7 @@ function drawGraph(fullData){
 
 /* ---------TIMELINE VIS--------*/
 
-var timelineSvg;
+
 
 function drawTimelineVis(dataset) {
 
@@ -631,7 +592,6 @@ function drawTimelineVis(dataset) {
     console.log("Min Year", minYear);
     console.log("Max Year", maxYear);
 
-    
     //Set the Tooltip Text
     var tooltipText = function(d) {
         return "<strong> Year: " +
@@ -647,7 +607,6 @@ function drawTimelineVis(dataset) {
 
     // Create the Year Array
     var yearMap = dataset.map(function(d) { return d.year; });
-    console.log("Year Map", yearMap);
 
     // Set the Bins
     const thresholds = d3.range(minYear, maxYear + 1, 1);
@@ -670,32 +629,21 @@ function drawTimelineVis(dataset) {
 
     // Yscale function
     var yTimeline = d3.scaleLinear()
-        // .domain([0, d3.max(timelineBins, function(d) { return d.length; })])
         .domain([0,maxCount])
         .range([h, 0]);
 
     console.log("bins: ", timelineBins);
-    console.log(x_year(1939));
-    console.log(x_year(2017));
+
     //Map the timeline chart group to all the data points
-    var barWidth = x_year(timelineBins[0].x0)/timelineBins.length ;
-    console.log("BAR WIDTh", barWidth);
 
     var bar = timelineSvg.selectAll(".timeline")
                     .data(timelineBins,function(d) { return d.x0;});
      
-        
-    // bar.enter().append("g")
-    //                 .attr("class","timeline");
-    
-    // bar.remove().exit();
-        
 
     console.log("bars" ,bar);
 
     bar.exit()
         .transition()
-        // .delay(1000)
         .ease(d3.easeExp)
         .duration(50)
         .remove();
@@ -723,9 +671,6 @@ function drawTimelineVis(dataset) {
             .attr("y",function(d){return yTimeline(d.length);})
             // .attr("width",barWidth+1);
             .attr("width", x_year(timelineBins[0].x1) - x_year(timelineBins[0].x0) - 1)
-          
-            
-                         
 
 
     bar.enter()
@@ -747,59 +692,22 @@ function drawTimelineVis(dataset) {
         .transition()
             .duration(300)
             .ease(d3.easeExp)
-        .attr("x", function(d){ 
-            console.log(x_year(d.x0));
-            return x_year(d.x0)})
+        .attr("x", function(d){return x_year(d.x0)})
         .attr("y",function(d){return yTimeline(d.length);})
-        // .attr("width",barWidth)
         .attr("width", x_year(timelineBins[0].x1) - x_year(timelineBins[0].x0) - 1)
-        //.attr("width", barWidth)
         .attr("height", function(d) { return h - yTimeline(d.length); })
         .attr("fill", "steelblue");
 
-
-
-        // .transition()
-        //     .duration(300)
-        //     .ease(d3.easeExp);
-     
-     // bar.transition()
-     //    .duration(300)
-     //    .ease(d3.easeExp);
-
-        // .on("mouseover", function(d) {
-        //     tooltip.transition()
-        //         .duration(200)
-        //         .style("opacity", .9);
-        //     tooltip.html(tooltipText(d))
-        //         .style("left", (d3.event.pageX + 5) + "px")
-        //         .style("top", (d3.event.pageY - 28) + "px");
-
-        // })
-        // .on("mouseout", function(d) {
-        //     tooltip.transition()
-        //         .duration(500)
-        //         .style("opacity", 0);
-        // });
-
     console.log("TimeLine SVG", timelineSvg.select(".x.axis."+idLabel));
-    
-    // timelineSvg.append("g")
-    //     .attr("class", "axis axis--x")
-    //     .attr("transform", "translate(0," + h + ")")
+
 
     timelineSvg.select(".x.axis."+idLabel)
                   .call(d3.axisBottom(x_year)
                     .tickFormat(d3.format("d")));
 
-    // .attr("transform", "translate("+ w  + ", 0 )")
-
-
-
     timelineSvg.select(".y.axis."+idLabel)
               .call(d3.axisLeft(yTimeline));
         console.log("Creating y axis");
-
 
 }
 
@@ -869,7 +777,6 @@ function drawGenreFilter(dataset){
                 ));
 
 }
-
 
 
 /*
