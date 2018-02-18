@@ -3,7 +3,7 @@ console.log("WELCOME TO MOVIE MATTERS");
 /*
      GLOBAL LAYOUT CONSTANTS
 */
-var width = 750;
+var width = 1000;
 var height = 450;
 var margin = { top: 20, right: 15, bottom: 30, left: 50 };
 
@@ -109,7 +109,6 @@ d3.csv("data/final_data.csv",
 
         drawGenreFilter(dataset);
         drawAllVis(dataset);
-
     }); //end d3.csv
 
 
@@ -226,7 +225,8 @@ function createNumericScale(dataset, col, pixelRange) {
 function drawAllVis(dataset) {
     //Calls all individual drawVis functions for each chart/graph
 
-    drawRatingYearVis(dataset);
+    // drawRatingYearVis(dataset);
+    drawGraph(dataset);
     drawTimelineVis(dataset);
     // Add more functions here
 }
@@ -284,33 +284,21 @@ function drawRatingYearVis(dataset) {
     x_col = "year"
     y_col = "my_rating"
 
-    var rating_xScale = createNumericScale(dataset, x_col, [0, w]); // Data-dependent year scale
-    var rating_yScale = d3.scaleLinear().domain([0,10]).range([h, 0]); //FIXED Rating Scale from 0 to 10
+    var x = createNumericScale(dataset, x_col, [0, w]); // Data-dependent year scale
+    var y = d3.scaleLinear().domain([0,10]).range([h, 0]); //FIXED Rating Scale from 0 to 10
 
-    var x = function(d) { return rating_xScale(d[x_col]); }
-    var y = function(d) { return rating_yScale(d[y_col]); }
+    // var x = function(d) { return rating_xScale(d[x_col]); }
+    // var y = function(d) { return rating_yScale(d[y_col]); }
 
-    // var jitterVal= 8;
-
-    // var getYPosition = function(d, i) {
-    //     var position = y(d);
-
-    //     if (true) 
-    //     {
-    //         return i%2 === 0 ?
-    //             position + Math.random()*jitterVal
-    //           : position - Math.random()*jitterVal
-    //     } 
-    //     else { return position; }
-    // }
-
+    var colour = d3.scaleOrdinal()
+    .domain(d3.map(dataset, function(d){return d.genre;}).keys())
+    .range(d3.schemeCategory20);
+          
     //Create xAxis, yAxis d3 axes with ticks (Dynamically)
     //axes= createD3Axes(ratingchart, rating_xScale, rating_yScale, 10, 10);
-    //rating_x_axis = axes[0];
-    //rating_y_axis = axes[1];    
 
-    var xAxis = d3.axisBottom().scale(rating_xScale);
-    var yAxis = d3.axisLeft().scale(rating_yScale);
+    var xAxis = d3.axisBottom().scale(x);
+    var yAxis = d3.axisLeft().scale(y);
 
 
     //REDRAW axes Dynamically
@@ -321,20 +309,39 @@ function drawRatingYearVis(dataset) {
         .call(yAxis);
 
 
+    var radius = 2.5;
+    var padding = 1;
+
+    //ADD FORCE
+    var simulation = d3.forceSimulation(dataset)
+      .force("charge", d3.forceManyBody().strength(-10))
+      .force("x", d3.forceX(function(d) {return x(d[x_col]);}).strength(0.5))
+      .force("y", d3.forceY(function(d) {return y(d[y_col]);}).strength(0.1))
+      .force("collide", d3.forceCollide(4).strength(0.7).iterations(4))
+      .stop();
+
+    console.log(simulation)
+
+    console.log("Adding the force");
+    for (var i = 0; i < 5; ++i) 
+        simulation.tick();
+
     //REDRAW CIRCLES
 
     //draw the circles initially and on each interaction with a control
     var circle = ratingchart.selectAll(".rating-circle")
         .data(dataset, key);
 
-    var t = d3.transition()
-      .duration(750);
+    var t = d3.transition().duration(300);
+
+
+
 
     //console.log('Update')
     circle
-        .attr("cx", x)
-        .attr("cy", y)
-        .style("opacity", 0.2)
+        .attr("cx", function(d) {return x(d[x_col]);})
+        .attr("cy", function(d) {return y(d[y_col]);})
+        .style("opacity", 1)
         // .style("fill", function(d) { return col(d.type); })
         .on("mouseover", function(d) {
             tooltip.transition()
@@ -360,18 +367,17 @@ function drawRatingYearVis(dataset) {
     //console.log('Enter')
     circle.enter().append("circle")
         .attr("class", "rating-circle enter")
-        .attr("cx", x)
-        .attr("cy", y)
-        .attr("r", 4)
-        .style("stroke", "black")
-        .style("opacity", 0.5)
+        .attr("cx", function(d) {return x(d[x_col]);})
+        .attr("cy", function(d) {return y(d[y_col]);})
+        .attr("r", radius)
+        .style("fill", function(d) { return colour(d.genre); })      
+        //.style("stroke", "black")
+        .style("opacity", 1)
         .on("mouseover", function(d) {
-            d3.select(this)
-            .transition()
-            .duration(500)
-            .style("fill-opacity", .35)
-            .attr("r", 10)
-
+            // d3.select(this)
+            // .transition()
+            // .duration(500)
+            // .attr("r", 3)
             tooltip.transition()
                 .duration(100)
                 .style("opacity", .9);
@@ -384,20 +390,166 @@ function drawRatingYearVis(dataset) {
                 .duration(300)
                 .style("opacity", 0);
 
-            d3.select(this)
-            .transition()
-            .duration(100)
-            .style("fill-opacity", 1)
-            .attr("r", 4)
+            // d3.select(this)
+            // .transition()
+            // .duration(100)
+            // .style("fill-opacity", 1)
+            // .attr("r", 4)
         })
-        .style("fill-opacity", 1e-6)    //enter transition
-        .transition(t)
-        .style("fill-opacity", 0.2)
+        // .style("fill-opacity", 1e-6)    //enter transition
+        // .transition(t)
+        // .style("fill-opacity", 0.2)
         
 } //End Draw Vis
 
-/* ---------TIMELINE VIS--------
- */
+
+
+
+
+function drawGraph(fullData){  
+
+    console.log('Drawing Scatter Plot: Rating vs Year')
+
+    //Set the Tooltip Text
+    var tooltipText = function(d) {
+        return "<strong>" + d.title + "</strong> (" + d.year + ") <br/> My Rating: " +
+            d.my_rating + "<br/> IMDB Rating: " + d.imdb_rating
+    };
+
+
+    idLabel = "rating-year" //label to identify class of axes for this chart
+
+    //Labels for Axes 
+    xLabel = "Year"
+    yLabel = "My Rating"
+
+
+    //Create SVG Chart And Axes Group DOM if needed (Runs only once during initial load)
+    if (typeof ratingchart == 'undefined') {
+       // ratingchart = createSVGChart("#rating-years");
+        var ratingchart = d3.select("#rating-years")//.append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        console.log("Created Rating Chart: ", ratingchart);
+
+        createAxesDOM(ratingchart, idLabel, xLabel, yLabel);
+        console.log("Created Rating Chart Axes DOM");
+    }
+
+
+    //Create Scales (Dynamically)
+    x_col = "year"
+    y_col = "my_rating"
+
+
+    var x = createNumericScale(dataset, x_col, [0, w]); // Data-dependent year scale
+    var y = d3.scaleLinear().domain([0,10]).range([h, 0]); //FIXED Rating Scale from 0 to 10
+
+    var colour = d3.scaleOrdinal()
+    .domain(d3.map(dataset, function(d){return d.genre;}).keys())
+    .range(d3.schemeCategory20);
+          
+
+    // var xAxis = d3.axisBottom().scale(x);
+    // var yAxis = d3.axisLeft().scale(y);
+
+    var xAxis = d3.axisBottom(x);
+    var yAxis = d3.axisLeft(y);
+
+
+    //REDRAW axes Dynamically
+    g1 = d3.select(".x.axis." + idLabel)
+        .call(xAxis.tickFormat(d3.format("d")));
+
+    g2 = d3.select(".y.axis." + idLabel)
+        .call(yAxis);
+
+    // var clip = ratingchart.append("defs").append("svg:clipPath")
+    // .attr("id", "clip")
+    // .append("svg:rect")
+    // .attr("width", width )
+    // .attr("height", height )
+    // .attr("x", 0) 
+    // .attr("y", 0)
+    // .attr(""); 
+
+    var scatter = ratingchart.append("g")
+    .attr("id", "scatterplot")
+    .attr("clip-path", "url(#clip)");
+
+    // x axis
+    // ratingchart.append("g")
+    //   .attr("class", "x axis")
+    //   .attr('id', "axis--x")
+    //   .attr("transform", "translate(0," + height + ")")
+    //   .call(xAxis)
+    //   .selectAll("text")    
+    //   .style("text-anchor", "end")
+    //   .attr("dx", "-.8em")
+    //   .attr("dy", ".15em")
+    //   .attr("transform", "rotate(-65)");
+
+    
+    // ratingchart.append("text")
+    //      .style("text-anchor", "end")
+    //         .attr("x", width)
+    //         .attr("y", height - 8)
+    //      .text("Year");
+
+    // y axis
+    // ratingchart.append("g")
+    //   .attr("class", "y axis")
+    //   .attr('id', "axis--y")
+    //   .call(yAxis);
+    
+    // ratingchart.append("text")
+    //   .attr("transform", "rotate(-90)")
+    //   .attr("y", 6)
+    //   .attr("dy", "1em")
+    //   .style("text-anchor", "end")
+    //   .text("My Rating");
+  
+        var simulation = d3.forceSimulation(fullData)
+      .force("x", d3.forceX(function(d) { return x(d.year); }))
+      .force("y", d3.forceY(function(d) { return y(d.my_rating); }))
+      .force("collide", d3.forceCollide(4)
+                .strength(0.1)
+                    .iterations(2))
+      .stop();
+
+    console.log(fullData[0]);
+  for (var i = 0; i < 120; ++i) simulation.tick();
+
+    scatter.selectAll(".dot")
+      .data(fullData)
+      .enter().append("circle")
+      .attr("class", "dot")
+      .attr("r", 2.5)
+      .attr("cx", function(d) { return d.x })
+      .attr("cy", function(d) { return d.y; })
+      .attr("opacity", 0.7)
+      .style("fill", function(d) { return colour(d.genre); })
+        .on("mouseover", function(d) {
+             tooltip.transition()
+               .duration(200)
+               .style("opacity", .9);
+             tooltip.html(d.my_title + " (" + d.year + ")<br/>" + d.my_rating)
+               .style("left", (d3.event.pageX) + "px")
+               .style("top", (d3.event.pageY - 28) + "px");
+                
+           })
+           .on("mouseout", function(d) {
+             tooltip.transition()
+               .duration(500)
+               .style("opacity", 0);
+           });
+}
+
+
+/* ---------TIMELINE VIS--------*/
+
 var timelineSvg;
 
 function drawTimelineVis(dataset) {
@@ -569,11 +721,7 @@ function drawGenreFilter(dataset){
                 }
                 ));
     console.log("Legend",legend);
-
-  
     console.log("bye");
-
-
 }
 
 
