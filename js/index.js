@@ -102,9 +102,6 @@ d3.csv("data/final_data.csv",
 
         console.log('Details of Dataset');
         console.log('# Records: ', dataset.length);
-//        console.log('Max Year : ', maxYear);
-//        console.log('Max Runtime : ', maxRuntime);
-//        console.log('Max Revenue : ', maxRevenue);
 
         console.log('Avg My Rating : ', avgMyRating);
         console.log('Avg IMDB Rating : ', avgImdbRating);
@@ -290,7 +287,14 @@ function createTimelineAxesDOM(chart,idLabel){
 
   chart.append("g")
         .attr("class", "y axis " + idLabel);
-  console.log("CHarty", chart);
+
+  chart.append("text") 
+        .attr("transform", "rotate(-90)")
+          .attr("y", 0 - margin.left)
+          .attr("x",0 - (height / 2))
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .text("Number of Movies Watched");;
 }
 
 
