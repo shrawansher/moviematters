@@ -421,8 +421,8 @@ function drawRatingYearVis(dataset){
 
 /* ---------TIMELINE VIS--------*/
 
-
-
+var x_year;
+var barWidth;
 function drawTimelineVis(dataset) {
     console.log("ENtering timelinevis");
 
@@ -434,6 +434,7 @@ function drawTimelineVis(dataset) {
     // Year Ranges
     var maxYear = d3.max(dataset.map(function(d) { return d.year; }));
     var minYear = d3.min(dataset.map(function(d) { return d.year; }));
+    
 
     console.log("Min Year", minYear);
     console.log("Max Year", maxYear);
@@ -445,11 +446,6 @@ function drawTimelineVis(dataset) {
     };
 
     console.log('Drawing Timeline Histogram Plot')
-
-    // X-Scale Function
-    var x_year = createNumericScale(dataset, x_col, [0, w]); // Data-dependent year scale
-    
-    //SVG and DOM tags for Ratings Div
 
     // Create the Year Array
     var yearMap = dataset.map(function(d) { return d.year; });
@@ -471,6 +467,15 @@ function drawTimelineVis(dataset) {
 
          maxCount = d3.max(timelineBins.map(function(d){ return d.length; }));
          console.log("Max count",maxCount);
+         barWidth =  w/timelineBins.length-2 ;
+
+         // X-Scale Function
+
+         x_year = createNumericScale(dataset, x_col, [0, w]); // Data-dependent year scale
+        
+        console.log("BARWIDTH", barWidth);
+        
+
     }
 
     // Yscale function
@@ -487,14 +492,47 @@ function drawTimelineVis(dataset) {
      
 
     console.log("bars" ,bar);
-
+    //Exit Pattern
     bar.exit()
         .transition()
         .ease(d3.easeExp)
         .duration(50)
         .remove();
-        console.log("Bar after exit",bar);
+    console.log("Bar after exit",bar);
 
+
+    //Enter Pattern
+    bar.enter()
+        .append("rect")
+        .attr("class","timeline")
+        .on("mouseover", function(d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(tooltipText(d))
+                        .style("left", (d3.event.pageX + 5) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");
+                    })
+        .on("mouseout", function(d) {
+                        tooltip.transition()
+                            .duration(500)
+                            .style("opacity", 0)
+                    })
+        .attr("x", function(d){return x_year(d.x0)})
+        .attr("y",h)
+        .attr("width",barWidth)
+        .attr("height", function(d) { return h - yTimeline(d.length); })
+        .attr("fill", "steelblue")
+        .transition()
+            .duration(300)
+            .ease(d3.easeExp)  
+        .attr("x", function(d){return x_year(d.x0)-barWidth/2})
+        .attr("y",function(d){return yTimeline(d.length);});
+        
+
+    
+
+    //Update Pattern
     bar.on("mouseover", function(d) {
                     tooltip.transition()
                         .duration(200)
@@ -513,38 +551,39 @@ function drawTimelineVis(dataset) {
             .duration(300)
             .ease(d3.easeCubic)
             .attr("height", function(d) { return h - yTimeline(d.length); })
-            .attr("x", function(d){ return x_year(d.x0);})
+            .attr("x", function(d){ return x_year(d.x0)-barWidth/2;})
             .attr("y",function(d){return yTimeline(d.length);})
-            // .attr("width",barWidth+1);
-            .attr("width", x_year(timelineBins[0].x1) - x_year(timelineBins[0].x0) - 1)
-
-
-    bar.enter()
-        .append("rect")
-        .attr("class","timeline")
-        .on("mouseover", function(d) {
-                    tooltip.transition()
-                        .duration(200)
-                        .style("opacity", .9);
-                    tooltip.html(tooltipText(d))
-                        .style("left", (d3.event.pageX + 5) + "px")
-                        .style("top", (d3.event.pageY - 28) + "px");
-                    })
-        .on("mouseout", function(d) {
-                        tooltip.transition()
-                            .duration(500)
-                            .style("opacity", 0)
-                    })
-        .transition()
-            .duration(300)
-            .ease(d3.easeExp)
-        .attr("x", function(d){return x_year(d.x0)})
-        .attr("y",function(d){return yTimeline(d.length);})
-        .attr("width", x_year(timelineBins[0].x1) - x_year(timelineBins[0].x0) - 1)
-        .attr("height", function(d) { return h - yTimeline(d.length); })
-        .attr("fill", "steelblue");
-
+            .attr("width",barWidth)
+            // .attr("width", x_year(timelineBins[0].x1) - x_year(timelineBins[0].x0) - 1)
     console.log("TimeLine SVG", timelineSvg.select(".x.axis."+idLabel));
+    console.log("BEFORE");
+    console.log(bar);
+
+
+    timelineSvg.selectAll(".timeline")
+                .on("click",handleClick);
+                // .attr("fill","red");
+
+    function handleClick(d,i){
+
+        barSelected = !barSelected;
+        console.log("Bar Selected",barSelected);
+        if(barSelected){
+            d3.select(this).attr("fill","#d91420");
+            yearRange = [d.x0, d.x0];
+            prevYearRange = [minYear,maxYear];
+            filterColumn( "year", yearRange);
+
+        } 
+        else{
+            d3.select(this).attr("fill","steelblue");
+           console.log("Rage Year",prevYearRange);
+           filterColumn( "year", prevYearRange); 
+        }  
+
+    }
+
+
 
 
     timelineSvg.select(".x.axis."+idLabel)
@@ -557,6 +596,8 @@ function drawTimelineVis(dataset) {
 
 }
 
+var barSelected = false;
+var prevYearRange ;
 function drawGenreFilter(dataset){
 
     
@@ -689,6 +730,7 @@ $(function() {
         max: 2017,
         values: [1939, 2017],
         slide: function(event, ui) {
+            console.log("Years",ui.values);
             $("#yeartext").val(ui.values[0] + " - " + ui.values[1]);
             filterColumn( "year", ui.values);
         } //end slide function
