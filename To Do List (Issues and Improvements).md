@@ -1,7 +1,6 @@
 # List of Issues
 
 ## UI / Look & Feel
-* ~ Range Sliders CSS
 * (DESCOPED) DropDown CSS
 * ~~Revise Text on Left Content
 * ~~Layout (Fix Width of RightContent)

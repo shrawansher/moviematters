@@ -1,7 +1,5 @@
 
 .DS_Store
-*.csv
-*.tsv
-*.xlsx
-js/jitter.js
-*.png
+data/raw_data/*
+images/*
+extra_images/*

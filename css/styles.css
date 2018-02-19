@@ -4,12 +4,12 @@ html, body, .Container
     font-family: 'Raleway', sans-serif;
 }
 
-    .Container:before
-    {
+.Container:before
+{
         content: '';
         height: 100%;
         float: left;
-    }
+}
 
 .Header
 {
@@ -51,11 +51,11 @@ html, body, .Container
     padding: 10px;
     overflow: auto;
     width: auto;
+
 }
 
 .view-summary
 {
-    font-family: 'Roboto', sans-serif;
     text-align: center;
 }
 
@@ -63,7 +63,7 @@ html, body, .Container
 {
     float: right;
     width:  200px;
-    height: 200px;
+    height: auto;
 
     margin-left: 20px;
     margin-right: 20px;
@@ -72,18 +72,34 @@ html, body, .Container
     border-radius: 25px;
     border: 5px solid #62a7c3;
     
-
-
 }
 
-.timebars:hover{
+.summary
+{
+    text-align: center;
+}
+
+.summary-count{
+    font-family: 'Roboto', sans-serif;    
+    font-size: 20px;
+}
+
+.no-records{
+    color: #d91420; /* red */
+}
+
+.timeline:hover{ 
 
     fill: #d91420; /* red */
+    cursor:pointer;
+
 }
 
-.exit {
-/*  fill: brown; */
+
+.dot:hover{
+    stroke: black;
 }
+
 
 .tooltip {
 	position: absolute;
@@ -110,7 +126,6 @@ html, body, .Container
 
 }
 
-
 .axis path {
   fill: none;
   stroke: #000;
@@ -135,12 +150,6 @@ html, body, .Container
 .helptext{
     font-size: 8px;
 }
-
-/*.slidercontainer {
-    align-content: center
-    float:center;
-    width: 90%;
-}*/
 
 .slider-range {
     -webkit-appearance: none;
