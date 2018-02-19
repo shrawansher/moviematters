@@ -1,9 +1,4 @@
 
 .DS_Store
-*.csv
-*.tsv
-*.xlsx
-js/jitter.js
-*.png
-force1.html
-force2.html
+data/raw_data/*
+images/*
