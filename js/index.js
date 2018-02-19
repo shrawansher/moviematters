@@ -26,22 +26,20 @@ var revenueExtent;
 
 var countRecords;
 
-var genres;
-var genresSelected={};
 
-var maxCount;
-
-var timelineSvg;
-var color;
 /*
     GLOBAL FILTER-RELATED VARIABLES
     To keep track of patterns and current selections on filters
 */
 
+var genres;
+var genresSelected={};
+var color;  //common color scale for genres
 
-//start with the type set to all, changes this variable everytime the dropdown for type is changed
-var patt = new RegExp("all"); //For TYPE filter
 
+var maxCount; //max size of bin for timeline
+
+var timelineSvg;
 
 
 /*
@@ -250,12 +248,27 @@ function createOrdinalScale(dataset, col, pixelRange) {
 
 function drawAllVis(dataset) {
     //Calls all individual drawVis functions for each chart/graph
-
-    // drawRatingYearVis(dataset);
     drawRatingYearVis(dataset);
     drawTimelineVis(dataset);
-    // Add more functions here
+    updateSummaryText(dataset);
 }
+
+
+var summaryText;
+var s;
+function updateSummaryText(dataset)
+{
+  if(typeof summaryText =='undefined')
+    summaryText = d3.select('.summary');
+
+  console.log("UPDATE SUMMARY TEXT for DATASET", dataset);
+ 
+  countRecords = dataset.length;
+  s = "<span class='summary-count'> " + countRecords + " </span> <br/> Movies on Display!<br/>";
+  summaryText.classed("no-records", countRecords == 0).html(s) ; //highlight if no records   
+}
+
+
 function createTimelineAxesDOM(chart,idLabel){
   chart.append("g")
       .attr("class", "x axis " + idLabel)
@@ -306,7 +319,6 @@ function drawRatingYearVis(dataset){
     //Create Scales (Dynamically)
     x_col = "year"
     y_col = "my_rating"
-
 
     //Create SVG Chart And Axes Group DOM if needed (Runs only once during initial load)
     if (typeof ratingchart == 'undefined') {

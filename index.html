@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
+    <link rel="icon" href="favicon.ico" />
     <link rel="stylesheet" href="css/styles.css">
     <!--    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans"> -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
@@ -27,22 +28,27 @@
         <div class="Content">
             <div class="Wrapper">
                 <div id="filters-div" class="RightContent">
-<!--                     <p>Filters go here</p>
- -->                    <!--Filter Section For 'YEAR' Slider  -->
-                    <label class="choice-label" for="yeartext">Chosen Year Range:</label>
+                    <!--Filters  Summary-->
+                    <p class="summary" id="summary-text" ></p>
+
+                    <!--Filter Section For 'YEAR' Slider  -->
+                    <label class="choice-label" for="yeartext">Year of Release:</label>
                     <input type="text" class="choice-value" id="yeartext" readonly style="border:0; color:#f6931f; font-weight:bold;">
                     <div id="yearslider" class="slider-range"></div>
                     <br/>
+
                     <!--Filter Section For 'MY RATING' Slider  -->
                     <label class="choice-label" for="myratingtext">My Rating:</label>
                     <input type="text" class="choice-value" id="myratingtext" readonly style="border:0; color:#f6931f; font-weight:bold;">
                     <div id="myratingslider" class="slider-range"></div>
                     <br/>
+
                     <!--Filter Section For 'RUNTIME' Slider  -->
                     <label class="choice-label" for="runtimetext">Runtime (in minutes):</label>
                     <input type="text" class="choice-value" id="runtimetext" readonly style="border:0; color:#f6931f; font-weight:bold;">
                     <div id="runtimeslider" class="slider-range"></div>
                     <br/>
+
                     <!--Filter Section For 'UnderRated, OverRated' -->
                     <label class="choice-label">Underrated or Overrated:</label>
                         <select id="underoverselectform">
@@ -60,29 +66,22 @@
                     <svg id="genre-filter"></svg>
                 </div>
                 <!--End of Filters Div (Right Content-->
+
+                <!-- Visualization Div (Left Content) -->
                 <div id="visualization-div" class="LeftContent">
 <!--                     <h3>Timeline View</h3>-->
                     <p class="view-summary">When were the movies I have watched released?</p>
                     <div id="timeline-div" class="visualization">
                         <svg id="time-bars" class="chart"></svg>
                     </div>
-
-<!--                     <hr>
-                    <h3>Genre View</h3>
-                    <p class="view-summary">Which movie genres do I watch and like?</p>
-                    <p class="helptext"> Select filters to play around</p>
-                    <div id="genre-div" class="visualization">
-                        <svg id="genre-bars" class="chart"></svg>
-                    </div> -->
                     <hr>
+
 <!--                     <h3>Your Ratings View</h3>-->
                     <p class="view-summary">How do I rate my movies?</p>
-<!--                    <p class="helptext" > Select filters to play around</p> -->
                     <div id="ratings-div" class="visualization">
                         <svg id="rating-years" class="chart"></svg>
                     </div>
                 </div>
-                <!-- Visualization Div (Left Content) -->
                 <!-- SCRIPTS SECTION-->
                 <script src="js/index.js"></script>
             </div>

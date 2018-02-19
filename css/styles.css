@@ -63,8 +63,7 @@ html, body, .Container
 {
     float: right;
     width:  200px;
-    height: 200px;
-
+    height: auto;
 
     margin-left: 20px;
     margin-right: 20px;
@@ -73,13 +72,27 @@ html, body, .Container
     border-radius: 25px;
     border: 5px solid #62a7c3;
     
+}
 
+.summary
+{
+    text-align: center;
+}
 
+.summary-count{
+    font-family: 'Roboto', sans-serif;    
+    font-size: 20px;
+}
+
+.no-records{
+    color: #d91420; /* red */
 }
 
 .timeline:hover{ 
 
     fill: #d91420; /* red */
+    cursor:pointer;
+
 }
 
 
@@ -112,7 +125,6 @@ html, body, .Container
   shape-rendering: crispEdges;
 
 }
-
 
 .axis path {
   fill: none;
