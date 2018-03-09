@@ -41,7 +41,7 @@ var maxCount; //max size of bin for timeline
 
 var timelineSvg;
 
-
+const allGenre = "ALL";
 /*
      READ DATA AND RELATED VARIABLES
 
@@ -84,6 +84,8 @@ d3.csv("data/final_data.csv",
         genres = [...new Set(dataset.map(function(d){return d.genre;}))];
         console.log("Genres",genres);
         genres.sort();
+        //Add ALL to Genre
+        genres.unshift("ALL");
         console.log("Sorted Genres",genres);
 
 
@@ -97,7 +99,13 @@ d3.csv("data/final_data.csv",
         runtimeExtent = d3.extent(dataset.map(function(d) { return d['runtime']; }));
         revenueExtent = d3.extent(dataset.map(function(d) {return d['revenue']; }));
 
-        color = d3.scaleOrdinal(d3.schemeCategory20).domain(genres); //global scale for genre-based color
+        genreColors =["black","#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", 
+                  "#c5b0d5", "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f"];
+        //Global scale for genre-based color
+        // color10 = d3.scaleOrdinal(d3.schemeCategory20).domain(genres);
+        color = d3.scaleOrdinal().domain(genres)
+                      .range(genreColors);
+        
 
 
         console.log('Details of Dataset');
@@ -116,6 +124,7 @@ d3.csv("data/final_data.csv",
             genresSelected[genres[i]] = true;
 
         }
+        genresSelected[allGenre]=true;
 
         console.log("GENRE SELECTED",genresSelected);
 
@@ -309,7 +318,8 @@ function drawRatingYearVis(dataset){
 
     //Set the Tooltip Text
     var tooltipText = function(d) {
-        return "<strong>" + d.title + "</strong> (" + d.year + ") <br/> My Rating: " +
+        return "<img src=\"data/posters/poster_"+ d.id + ".jpeg\""+ " height=\"210\" width=\"145\">"+ "<br>" +
+         "<strong>" + d.title + "</strong> (" + d.year + ") <br/> My Rating: " +
             d.my_rating + "<br/> IMDB Rating: " + d.imdb_rating
     };
 
@@ -618,26 +628,95 @@ function drawGenreFilter(dataset){
 
     
     // console.log("Colors",color("SCI_FI"));
-    console.log("Colors domain",color.domain());
+    // console.log("Colors domain",color.domain());
+    // var allLegendClass = "all-legend";
+
+    var legendSvg = d3.select("#genre-filter")
+                      .append("g")
+                      .attr("class","left-legend");
+
+    // var legendAll = legendSvg.selectAll(".all")
+    //                         .data([allGenre])
+    //                         .enter().append("g")
+    //                         .attr("class", "all-legend")
+    //                         .attr("transform", function(d, i) {
+    //                          return "translate(0," + i * 20 + ")";
+    //                                 })
+    //                         .style("opacity",1);
+
+    // legendAll.append("rect")
+    //       .attr("x",3 )
+    //       .attr("width", 18)
+    //       .attr("height", 18)
+    //       .style("fill", "black");
+
+    // legendAll.append("text")
+    //     .attr("x", 26)
+    //     .attr("dy", ".9em")
+    //     .text(function(d) {
+    //         return d;
+    //     });
+
+    // legendAll.on("click", (function(d){
+    //                     var y ="."+ allLegendClass;
+    //                     console.log("Data =" ,d);
+    //                     console.log("Class =" ,allLegendClass);
+    //                     //Toggle the genre selected
+    //                     genresSelected[d] = !genresSelected[d] ;
+    //                     var opacity  = document.getElementsByClassName(allLegendClass)[0].style.opacity;
+    //                     console.log ("Old opacity =" + opacity);
 
 
-    var legendSvg = d3.select("#genre-filter").append("g").attr("class","left-legend");
+    //                     if (opacity === "1") {
+    //                         console.log("Reducing opacity");
+    //                         for(i=0;i<genres.length;i++){
+    //                             genresSelected[genres[i]] = false;
 
+    //                         }
+    //                     genresSelected[allGenre]=false;
+
+    //                         legendSvg.selectAll(y).style("opacity", "0.2");
+
+    //                         //svg.selectAll(".rect.color-" + color(d).substring(1)).remove();
+    //                     }
+    //                     else{
+    //                         for(i=0;i<genres.length;i++){
+    //                           genresSelected[genres[i]] = true;
+    //                       }
+    //                       genresSelected[allGenre]=true;
+    //                         legendSvg.selectAll(y).style("opacity", "1");
+    //                         //svg.selectAll(".rect.color-" + color(d).substring(1)).d.enter().append();
+    //                     }
+       
+    //                     opacity  = document.getElementsByClassName(allLegendClass)[0].style.opacity;
+    //                     console.log ("New opacity =" + opacity);
+    //                     console.log("Filtering data");
+    //                     console.log(genresSelected);
+    //                     filterColumn("genresSelected",genresSelected);
+    //                     drawGenreFilter(dataset);
+
+                        
+    //             }
+    //             ));
+
+
+    console.log("COLOR DOMAIN", color.domain());
     var legend = legendSvg.selectAll(".legend")
                             .data(color.domain())
                             .enter().append("g")
                             .attr("class", function(d) { 
                              return  "sqbar " + "color-" + color(d).substring(1) + " legend"; })
                             .attr("transform", function(d, i) {
-                             return "translate(0," + i * 20 + ")";
+                             return "translate(0," + (i +1)* 20 + ")";
                                     })
                             .style("opacity",1);
+    
 
     legend.append("rect")
-                            .attr("x",3 )
-                            .attr("width", 18)
-                            .attr("height", 18)
-                            .style("fill", color);
+          .attr("x",3 )
+          .attr("width", 18)
+          .attr("height", 18)
+          .style("fill", color);
                                                         // .on("mouseover", function(d) {
                             // legendSvg.selectAll("rect.color-" + color(d).substring(1)).style("opacity", 0.5).attr("stroke-width","3");
                             //  })
@@ -654,23 +733,41 @@ function drawGenreFilter(dataset){
 
     legend.on("click", (function(d){
                         var y = "sqbar color-" + color(d).substring(1);
+                        
                         console.log("Class =" ,d);
-                        //Toggle the genre selected
-                        genresSelected[d] = !genresSelected[d] ;
                         var opacity  = document.getElementsByClassName(y)[0].style.opacity;
                         console.log ("Old opacity =" + opacity);
 
+                        //Toggle the genre selected
+                        var newStatus = !genresSelected[d] ;
+                        
 
-                        if (opacity === "1") {
-                            console.log("Reducing opacity");
-                            legendSvg.selectAll(".sqbar.color-" + color(d).substring(1)).style("opacity", "0.2");
-                            //svg.selectAll(".rect.color-" + color(d).substring(1)).remove();
+                        if(d=="ALL"){
+                          console.log("ALL STATUS", genresSelected[d]);
+                          genres.map(function(e){ genresSelected[e] = newStatus; })
+
+                          if (opacity === "1") {
+                              console.log("Reducing opacity");
+                              legendSvg.selectAll(".sqbar").style("opacity", "0.2");
+                          }
+                          else{
+                              legendSvg.selectAll(".sqbar").style("opacity", "1");
+                          }
+
                         }
-                        else{
-                            legendSvg.selectAll(".sqbar.color-" + color(d).substring(1)).style("opacity", "1");
-                            //svg.selectAll(".rect.color-" + color(d).substring(1)).d.enter().append();
+                        
+                        else {
+
+                          if (opacity === "1") {
+                              console.log("Reducing opacity");
+                              legendSvg.selectAll(".sqbar.color-" + color(d).substring(1)).style("opacity", "0.2");
+                          }
+                          else{
+                              legendSvg.selectAll(".sqbar.color-" + color(d).substring(1)).style("opacity", "1");
+                          }
                         }
-       
+                        genresSelected[d] = newStatus;
+         
                         opacity  = document.getElementsByClassName(y)[0].style.opacity;
                         console.log ("New opacity =" + opacity);
                         filterColumn("genresSelected",genresSelected);
@@ -680,6 +777,7 @@ function drawGenreFilter(dataset){
                 ));
 
 }
+
 
 
 /*
