@@ -75,18 +75,12 @@ d3.csv("data/final_data.csv",
         //dataset is the full dataset -- maintain a copy of this at all times
         dataset = movies;
 
-        //max of different variables for sliders
-//        maxYear = d3.max(dataset.map(function(d) { return d.year; }));
-//        maxRuntime = d3.max(dataset.map(function(d) { return d['runtime']; }));
-//        maxRevenue = d3.max(dataset.map(function(d) { return d['revenue']; }));
-
         countRecords = dataset.length;
         genres = [...new Set(dataset.map(function(d){return d.genre;}))];
-        console.log("Genres",genres);
         genres.sort();
         //Add ALL to Genre
         genres.unshift("ALL");
-        console.log("Sorted Genres",genres);
+        // console.log("Sorted Genres",genres);
 
 
         avgMyRating = d3.mean(dataset.map(function(d) { return d['my_rating']; }));
@@ -102,7 +96,6 @@ d3.csv("data/final_data.csv",
         genreColors =["black","#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", 
                   "#c5b0d5", "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f"];
         //Global scale for genre-based color
-        // color10 = d3.scaleOrdinal(d3.schemeCategory20).domain(genres);
         color = d3.scaleOrdinal().domain(genres)
                       .range(genreColors);
         
@@ -126,10 +119,8 @@ d3.csv("data/final_data.csv",
         }
         genresSelected[allGenre]=true;
 
-        console.log("GENRE SELECTED",genresSelected);
+        // console.log("GENRE SELECTED",genresSelected);
 
-        //all the data is now loaded, so draw the initial vis
-        //console.log('Drawing Initial Visualizations')
 
         drawGenreFilter(dataset);
         drawAllVis(dataset);
@@ -160,7 +151,7 @@ none of these depend on the data being loaded so fine to define here
 
 // TOOLTIPS ! 
 //Currently only 1 tooltip
-console.log("Created Tooltip");
+// console.log("Created Tooltip");
 var tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
@@ -179,12 +170,7 @@ function createSVGChart(selectString) {
 }
 
 function createAxesDOM(chart, idLabel, xLabel, yLabel) {
-    // g1 = chart.append("g")
-    //     .attr("class", "x axis " + idLabel) //Keep space between x axis and label
-    //     .attr("transform", "translate(0," + h + ")")
-    //     .style("text-anchor", "end")
-    //     .attr("dx", "-.8em")
-    //     .attr("dy", ".15em");
+
    chart.append("g")
       .attr("class", "x axis " + idLabel)
       .attr("transform", "translate(0," + h + ")")
@@ -267,7 +253,7 @@ function updateSummaryText(dataset)
   if(typeof summaryText =='undefined')
     summaryText = d3.select('.summary');
 
-  console.log("UPDATE SUMMARY TEXT for DATASET", dataset);
+  // console.log("UPDATE SUMMARY TEXT for DATASET", dataset);
  
   countRecords = dataset.length;
   s = "<span class='summary-count'> " + countRecords + " </span> <br/> Movies on Display!<br/>";
@@ -342,10 +328,10 @@ function drawRatingYearVis(dataset){
                     .attr("height", height + margin.top + margin.bottom)
                     .append("g")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        console.log("Created Rating Chart: ", ratingchart);
+        // console.log("Created Rating Chart: ", ratingchart);
 
         createAxesDOM(ratingchart, idLabel, xLabel, yLabel);
-        console.log("Created Rating Chart Axes DOM");
+        // console.log("Created Rating Chart Axes DOM");
 
         xScaleDot = createNumericScale(dataset, x_col, [0, w]); // Data-dependent year scale
         yScaleDot = d3.scaleLinear().domain([0,10]).range([h, 0]); //FIXED Rating Scale from 0 to 10
@@ -363,7 +349,6 @@ function drawRatingYearVis(dataset){
         .call(yAxis);
 
   
-    // console.log("FULL DATA", fullData);
     var nodes = dataset;
 
     var simulation = d3.forceSimulation(nodes)
@@ -374,8 +359,7 @@ function drawRatingYearVis(dataset){
                     .iterations(2))
           .stop();
 
-    // simulation.nodes();
-    console.log(simulation);
+    // console.log(simulation);
     for (var i = 0; i < 100; ++i) 
         simulation.tick();
 
@@ -450,7 +434,7 @@ function drawRatingYearVis(dataset){
 var x_year;
 var barWidth;
 function drawTimelineVis(dataset) {
-    console.log("ENtering timelinevis");
+    console.log("Entering timelinevis");
 
     var x_col = "year";
 
@@ -462,8 +446,8 @@ function drawTimelineVis(dataset) {
     var minYear = d3.min(dataset.map(function(d) { return d.year; }));
     
 
-    console.log("Min Year", minYear);
-    console.log("Max Year", maxYear);
+    // console.log("Min Year", minYear);
+    // console.log("Max Year", maxYear);
 
     //Set the Tooltip Text
     var tooltipText = function(d) {
@@ -478,7 +462,8 @@ function drawTimelineVis(dataset) {
 
     // Set the Bins
     const thresholds = d3.range(minYear, maxYear + 1, 1);
-    console.log("thresholds", thresholds);
+    // console.log("thresholds", thresholds);
+
     var timelineBins = d3.histogram()
         .thresholds(thresholds)
         (yearMap);
@@ -486,20 +471,20 @@ function drawTimelineVis(dataset) {
     //Create SVG Chart And Axes Group DOM if needed (Runs only once during initial load)
     if (typeof timelineSvg == 'undefined') {
          timelineSvg = createSVGChart("#time-bars");
-         console.log("Created Timeline Chart: ", timelineSvg);
+         // console.log("Created Timeline Chart: ", timelineSvg);
 
          createTimelineAxesDOM(timelineSvg, idLabel);
-         console.log("Created Timeline Chart Axes DOM");
+         // console.log("Created Timeline Chart Axes DOM");
 
          maxCount = d3.max(timelineBins.map(function(d){ return d.length; }));
-         console.log("Max count",maxCount);
+         // console.log("Max count",maxCount);
          barWidth =  w/timelineBins.length-2 ;
 
          // X-Scale Function
 
          x_year = createNumericScale(dataset, x_col, [0, w]); // Data-dependent year scale
         
-        console.log("BARWIDTH", barWidth);
+        // console.log("BARWIDTH", barWidth);
         
 
     }
@@ -509,7 +494,7 @@ function drawTimelineVis(dataset) {
         .domain([0,maxCount])
         .range([h, 0]);
 
-    console.log("bins: ", timelineBins);
+    // console.log("bins: ", timelineBins);
 
     //Map the timeline chart group to all the data points
 
@@ -517,14 +502,14 @@ function drawTimelineVis(dataset) {
                     .data(timelineBins,function(d) { return d.x0;});
      
 
-    console.log("bars" ,bar);
+    // console.log("bars" ,bar);
     //Exit Pattern
     bar.exit()
         .transition()
         .ease(d3.easeExp)
         .duration(50)
         .remove();
-    console.log("Bar after exit",bar);
+    // console.log("Bar after exit",bar);
 
 
     //Enter Pattern
@@ -581,9 +566,9 @@ function drawTimelineVis(dataset) {
             .attr("y",function(d){return yTimeline(d.length);})
             .attr("width",barWidth)
             // .attr("width", x_year(timelineBins[0].x1) - x_year(timelineBins[0].x0) - 1)
-    console.log("TimeLine SVG", timelineSvg.select(".x.axis."+idLabel));
-    console.log("BEFORE");
-    console.log(bar);
+    // console.log("TimeLine SVG", timelineSvg.select(".x.axis."+idLabel));
+    // console.log("BEFORE");
+    // console.log(bar);
 
 
     timelineSvg.selectAll(".timeline")
@@ -593,7 +578,9 @@ function drawTimelineVis(dataset) {
     function handleClick(d,i){
 
         barSelected = !barSelected;
-        console.log("Bar Selected",barSelected);
+
+        // console.log("Bar Selected",barSelected);
+
         if(barSelected){
             d3.select(this).attr("fill","#d91420");
             yearRange = [d.x0, d.x0];
@@ -603,7 +590,7 @@ function drawTimelineVis(dataset) {
         } 
         else{
             d3.select(this).attr("fill","steelblue");
-           console.log("Rage Year",prevYearRange);
+           // console.log("Rage Year",prevYearRange);
            filterColumn( "year", prevYearRange); 
         }  
 
@@ -618,7 +605,8 @@ function drawTimelineVis(dataset) {
 
     timelineSvg.select(".y.axis."+idLabel)
               .call(d3.axisLeft(yTimeline));
-        console.log("Creating y axis");
+
+        // console.log("Creating y axis");
 
 }
 
@@ -626,81 +614,12 @@ var barSelected = false;
 var prevYearRange ;
 function drawGenreFilter(dataset){
 
-    
-    // console.log("Colors",color("SCI_FI"));
-    // console.log("Colors domain",color.domain());
-    // var allLegendClass = "all-legend";
-
     var legendSvg = d3.select("#genre-filter")
                       .append("g")
                       .attr("class","left-legend");
 
-    // var legendAll = legendSvg.selectAll(".all")
-    //                         .data([allGenre])
-    //                         .enter().append("g")
-    //                         .attr("class", "all-legend")
-    //                         .attr("transform", function(d, i) {
-    //                          return "translate(0," + i * 20 + ")";
-    //                                 })
-    //                         .style("opacity",1);
-
-    // legendAll.append("rect")
-    //       .attr("x",3 )
-    //       .attr("width", 18)
-    //       .attr("height", 18)
-    //       .style("fill", "black");
-
-    // legendAll.append("text")
-    //     .attr("x", 26)
-    //     .attr("dy", ".9em")
-    //     .text(function(d) {
-    //         return d;
-    //     });
-
-    // legendAll.on("click", (function(d){
-    //                     var y ="."+ allLegendClass;
-    //                     console.log("Data =" ,d);
-    //                     console.log("Class =" ,allLegendClass);
-    //                     //Toggle the genre selected
-    //                     genresSelected[d] = !genresSelected[d] ;
-    //                     var opacity  = document.getElementsByClassName(allLegendClass)[0].style.opacity;
-    //                     console.log ("Old opacity =" + opacity);
-
-
-    //                     if (opacity === "1") {
-    //                         console.log("Reducing opacity");
-    //                         for(i=0;i<genres.length;i++){
-    //                             genresSelected[genres[i]] = false;
-
-    //                         }
-    //                     genresSelected[allGenre]=false;
-
-    //                         legendSvg.selectAll(y).style("opacity", "0.2");
-
-    //                         //svg.selectAll(".rect.color-" + color(d).substring(1)).remove();
-    //                     }
-    //                     else{
-    //                         for(i=0;i<genres.length;i++){
-    //                           genresSelected[genres[i]] = true;
-    //                       }
-    //                       genresSelected[allGenre]=true;
-    //                         legendSvg.selectAll(y).style("opacity", "1");
-    //                         //svg.selectAll(".rect.color-" + color(d).substring(1)).d.enter().append();
-    //                     }
-       
-    //                     opacity  = document.getElementsByClassName(allLegendClass)[0].style.opacity;
-    //                     console.log ("New opacity =" + opacity);
-    //                     console.log("Filtering data");
-    //                     console.log(genresSelected);
-    //                     filterColumn("genresSelected",genresSelected);
-    //                     drawGenreFilter(dataset);
-
-                        
-    //             }
-    //             ));
-
-
-    console.log("COLOR DOMAIN", color.domain());
+    // console.log("COLOR DOMAIN", color.domain());
+    
     var legend = legendSvg.selectAll(".legend")
                             .data(color.domain())
                             .enter().append("g")
@@ -717,12 +636,7 @@ function drawGenreFilter(dataset){
           .attr("width", 18)
           .attr("height", 18)
           .style("fill", color);
-                                                        // .on("mouseover", function(d) {
-                            // legendSvg.selectAll("rect.color-" + color(d).substring(1)).style("opacity", 0.5).attr("stroke-width","3");
-                            //  })
-                            // .on("mouseout", function(d) {
-                            //     legendSvg.selectAll("rect.color-" + color(d).substring(1)).style("opacity",1).attr("stroke-width","0");
-                            //  });
+
     legend.append("text")
         .attr("x", 26)
         .attr("dy", ".9em")
@@ -734,20 +648,20 @@ function drawGenreFilter(dataset){
     legend.on("click", (function(d){
                         var y = "sqbar color-" + color(d).substring(1);
                         
-                        console.log("Class =" ,d);
+                        // console.log("Class =" ,d);
                         var opacity  = document.getElementsByClassName(y)[0].style.opacity;
-                        console.log ("Old opacity =" + opacity);
+                        // console.log ("Old opacity =" + opacity);
 
                         //Toggle the genre selected
                         var newStatus = !genresSelected[d] ;
                         
 
                         if(d=="ALL"){
-                          console.log("ALL STATUS", genresSelected[d]);
+                          // console.log("ALL STATUS", genresSelected[d]);
                           genres.map(function(e){ genresSelected[e] = newStatus; })
 
                           if (opacity === "1") {
-                              console.log("Reducing opacity");
+                              // console.log("Reducing opacity");
                               legendSvg.selectAll(".sqbar").style("opacity", "0.2");
                           }
                           else{
@@ -759,7 +673,7 @@ function drawGenreFilter(dataset){
                         else {
 
                           if (opacity === "1") {
-                              console.log("Reducing opacity");
+                              // console.log("Reducing opacity");
                               legendSvg.selectAll(".sqbar.color-" + color(d).substring(1)).style("opacity", "0.2");
                           }
                           else{
@@ -769,7 +683,7 @@ function drawGenreFilter(dataset){
                         genresSelected[d] = newStatus;
          
                         opacity  = document.getElementsByClassName(y)[0].style.opacity;
-                        console.log ("New opacity =" + opacity);
+                        // console.log ("New opacity =" + opacity);
                         filterColumn("genresSelected",genresSelected);
 
                         
@@ -823,7 +737,7 @@ function filterColumn(column, value){
 // Use for columns that filter based on Sliders Checkboxes and DropDowns
 
     filters[column] = value;
-    console.log("Changed Filter for ", column, "\n value = ", value);
+    // console.log("Changed Filter for ", column, "\n value = ", value);
 
     var filteredDataset = dataset.filter(subset_fn);
     drawAllVis(filteredDataset);
@@ -844,7 +758,7 @@ $(function() {
         max: 2017,
         values: [1939, 2017],
         slide: function(event, ui) {
-            console.log("Years",ui.values);
+            // console.log("Years",ui.values);
             $("#yeartext").val(ui.values[0] + " - " + ui.values[1]);
             filterColumn( "year", ui.values);
         } //end slide function
@@ -856,7 +770,7 @@ $(function() {
 
 // Range Slider for MY RATING (Hard-coded 0-10 Range only)
 $(function() {
-    console.log("Inside My Rating Slider Handler");
+    // console.log("Inside My Rating Slider Handler");
 
     $("#myratingslider").slider({
         range: true,
@@ -875,7 +789,7 @@ $(function() {
 
 // Range Slider for RUNTIME (Data-based Range)
 $(function() {
-    console.log("Inside Runtime Slider Handler");
+    // console.log("Inside Runtime Slider Handler");
 
     $("#runtimeslider").slider({
         range: true,
